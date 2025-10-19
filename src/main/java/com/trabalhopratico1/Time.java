@@ -110,6 +110,8 @@ public class Time
         int gm1 = t1.getGolsMarcados(), gm2 = t2.getGolsMarcados();
         if (gm1 != gm2) return (gm1 > gm2) ? t1 : t2;
 
+        int cv1 = t1.getCartoesVermelhos(), cv2 = t2.getCartoesVermelhos();
+        if (cv1 != cv2) return (cv1 < cv2) ? t1 : t2; 
         return t1;
     }
 }
