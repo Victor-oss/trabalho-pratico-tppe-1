@@ -111,7 +111,11 @@ public class Time
         if (gm1 != gm2) return (gm1 > gm2) ? t1 : t2;
 
         int cv1 = t1.getCartoesVermelhos(), cv2 = t2.getCartoesVermelhos();
-        if (cv1 != cv2) return (cv1 < cv2) ? t1 : t2; 
+        if (cv1 != cv2) return (cv1 < cv2) ? t1 : t2;
+
+        int ca1 = t1.getCartoesAmarelos(), ca2 = t2.getCartoesAmarelos();
+        if (ca1 != ca2) return (ca1 < ca2) ? t1 : t2;
+        
         return t1;
     }
 }
