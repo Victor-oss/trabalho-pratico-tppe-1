@@ -130,4 +130,22 @@ class TimeTest {
 
         assertEquals(t1, Time.desempate(t1, t2));
     }
+
+    @Test
+    void desempateUsaMenosAmarelosComoQuartoCriterio() {
+        Time t1 = new Time("Time A");
+        t1.setVitorias(4);
+        t1.setGolsMarcados(10);
+        t1.setGolsSofridos(6); 
+        t1.setCartoesAmarelos(1);
+
+        Time t2 = new Time("Time B");
+        t2.setVitorias(4);
+        t2.setGolsMarcados(10);
+        t2.setGolsSofridos(6); 
+        t2.setCartoesAmarelos(2);
+
+        assertEquals(t1, Time.desempate(t1, t2));
+        assertEquals(t1, Time.desempate(t2, t1));
+    }
 }
