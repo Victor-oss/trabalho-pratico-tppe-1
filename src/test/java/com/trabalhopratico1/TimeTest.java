@@ -19,6 +19,6 @@ class TimeTest {
         Time t = new Time("Time de Teste");
         t.setVitorias(vitorias);
         t.setEmpates(empates);
-        assertEquals(esperado, t.getPontos());
+    assertEquals(esperado, t.calcularPontos());
     }
 }

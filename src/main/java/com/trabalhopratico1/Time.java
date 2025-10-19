@@ -79,7 +79,7 @@ public class Time
         this.cartoesVermelhos = cartoesVermelhos;
     }
 
-    public int getPontos() {
+    public int calcularPontos() {
         return (this.vitorias * PONTOS_POR_VITORIA) + (this.empates * PONTOS_POR_EMPATE);
     }
 
