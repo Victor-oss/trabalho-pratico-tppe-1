@@ -10,6 +10,9 @@ public class Time
     private int cartoesAmarelos;
     private int cartoesVermelhos;
 
+    private static final int PONTOS_POR_VITORIA = 3;
+    private static final int PONTOS_POR_EMPATE = 1;
+
     public Time(String nome) {
         this.setNome(nome);
         this.setVitorias(0);
@@ -74,6 +77,10 @@ public class Time
 
     public void setCartoesVermelhos(int cartoesVermelhos) {
         this.cartoesVermelhos = cartoesVermelhos;
+    }
+
+    public int calcularPontos() {
+        return (this.vitorias * PONTOS_POR_VITORIA) + (this.empates * PONTOS_POR_EMPATE);
     }
 
     @Override
