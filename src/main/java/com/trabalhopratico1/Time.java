@@ -97,10 +97,12 @@ public class Time
     }
 
     public static Time desempate(Time t1, Time t2) {
-        if (t1.getVitorias() >= t2.getVitorias()) {
+        if (t1.getVitorias() > t2.getVitorias()) {
             return t1;
-        } else {
+        } else if (t2.getVitorias() > t1.getVitorias()) {
             return t2;
+        } else {
+            return t1;
         }
     }
 }

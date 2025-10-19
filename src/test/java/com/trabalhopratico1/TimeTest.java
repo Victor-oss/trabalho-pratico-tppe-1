@@ -30,7 +30,7 @@ class TimeTest {
         Time t2 = new Time("Time B");
         t2.setVitorias(3);
 
-        Time vencedor = Time.desempate(t1, t2);
-        assertEquals(t1, vencedor);
+        assertEquals(t1, Time.desempate(t1, t2));
+        assertEquals(t1, Time.desempate(t2, t1)); 
     }
 }
