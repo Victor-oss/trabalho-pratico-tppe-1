@@ -106,14 +106,14 @@ public class Time
         return desempate(t1, t2, new Random());
     }
 
-    public static Time confrontoDireto(Time t1, Time t2) {
-    int saldoT1 = t1.getGolsMarcados() - t1.getGolsSofridos();
-    int saldoT2 = t2.getGolsMarcados() - t2.getGolsSofridos();
-
-    if (saldoT1 > saldoT2) return t1;
-    if (saldoT2 > saldoT1) return t2;
-    return null; 
-}
+     public static Time confrontoDireto(Time t1, Time t2) {
+        if (t1 == null || t2 == null) {
+            throw new IllegalArgumentException("Times não podem ser nulos");
+        }
+        int cmp = Integer.compare(t1.getSaldoDeGols(), t2.getSaldoDeGols());
+        if (cmp == 0) return null;
+        return cmp > 0 ? t1 : t2;
+    }
 
     public static Time desempate(Time t1, Time t2, Random rng) {
     int comparacaoVitorias = Integer.compare(t1.getVitorias(), t2.getVitorias());
@@ -132,9 +132,8 @@ public class Time
     }
 
     Time vencedorConfronto = confrontoDireto(t1, t2);
-    if (vencedorConfronto != null) {
-        return vencedorConfronto;
-    }
+        if (vencedorConfronto != null)
+            return vencedorConfronto;
 
     int comparacaoVermelhos = Integer.compare(t1.getCartoesVermelhos(), t2.getCartoesVermelhos());
     if (comparacaoVermelhos != 0) {

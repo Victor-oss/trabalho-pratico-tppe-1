@@ -144,15 +144,14 @@ class TimeTest {
 
     @Test
     void confrontoDiretoRetornaTimeComMelhorSaldoNoConfronto() {
-    Time t1 = new Time("Time A");
-    Time t2 = new Time("Time B");
+        Time t1 = criarTimeComTodasEstatisticas("Time A", 0, 5, 2, 0, 0);
+        Time t2 = criarTimeComTodasEstatisticas("Time B", 0, 2, 5, 0, 0);
 
-    t1.setGolsMarcados(5);
-    t1.setGolsSofridos(2);
-    t2.setGolsMarcados(2);
-    t2.setGolsSofridos(5);
+        assertConfrontoDireto(t1, t2);
+    }
 
-    assertEquals(t1, Time.confrontoDireto(t1, t2));
-    assertEquals(t1, Time.confrontoDireto(t2, t1));
-}
+    private void assertConfrontoDireto(Time esperado, Time outro) {
+        assertEquals(esperado, Time.confrontoDireto(esperado, outro));
+        assertEquals(esperado, Time.confrontoDireto(outro, esperado));
+    }
 }
