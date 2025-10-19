@@ -76,6 +76,10 @@ public class Time
         this.cartoesVermelhos = cartoesVermelhos;
     }
 
+    public int getPontos() {
+        return (this.vitorias * 3) + this.empates;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
