@@ -101,8 +101,13 @@ public class Time
             return t1;
         } else if (t2.getVitorias() > t1.getVitorias()) {
             return t2;
-        } else {
-            return t1;
         }
+
+        int saldo1 = t1.getGolsMarcados() - t1.getGolsSofridos();
+        int saldo2 = t2.getGolsMarcados() - t2.getGolsSofridos();
+        if (saldo1 > saldo2) return t1;
+        if (saldo2 > saldo1) return t2;
+
+        return t1;
     }
 }
