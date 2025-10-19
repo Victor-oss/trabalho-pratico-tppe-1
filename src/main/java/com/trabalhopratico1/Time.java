@@ -100,17 +100,16 @@ public class Time
         return getNome() != null ? getNome().hashCode() : 0;
     }
 
-        public static Time desempate(Time t1, Time t2) {
-        if (t1.getVitorias() != t2.getVitorias()) {
-            return (t1.getVitorias() > t2.getVitorias()) ? t1 : t2;
-        }
-        if (t1.getSaldoDeGols() != t2.getSaldoDeGols()) {
-            return (t1.getSaldoDeGols() > t2.getSaldoDeGols()) ? t1 : t2;
-        }
-        if (t1.getGolsMarcados() != t2.getGolsMarcados()) {
-            return (t1.getGolsMarcados() > t2.getGolsMarcados()) ? t1 : t2;
-        }
+    public static Time desempate(Time t1, Time t2) {
+        int v1 = t1.getVitorias(), v2 = t2.getVitorias();
+        if (v1 != v2) return (v1 > v2) ? t1 : t2;
+
+        int s1 = t1.getSaldoDeGols(), s2 = t2.getSaldoDeGols();
+        if (s1 != s2) return (s1 > s2) ? t1 : t2;
+
+        int gm1 = t1.getGolsMarcados(), gm2 = t2.getGolsMarcados();
+        if (gm1 != gm2) return (gm1 > gm2) ? t1 : t2;
+
         return t1;
     }
-
 }
