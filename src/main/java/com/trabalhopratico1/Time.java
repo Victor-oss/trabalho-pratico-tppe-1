@@ -100,13 +100,17 @@ public class Time
         return getNome() != null ? getNome().hashCode() : 0;
     }
 
-    public static Time desempate(Time t1, Time t2) {
+        public static Time desempate(Time t1, Time t2) {
         if (t1.getVitorias() != t2.getVitorias()) {
             return (t1.getVitorias() > t2.getVitorias()) ? t1 : t2;
         }
         if (t1.getSaldoDeGols() != t2.getSaldoDeGols()) {
             return (t1.getSaldoDeGols() > t2.getSaldoDeGols()) ? t1 : t2;
         }
+        if (t1.getGolsMarcados() != t2.getGolsMarcados()) {
+            return (t1.getGolsMarcados() > t2.getGolsMarcados()) ? t1 : t2;
+        }
         return t1;
     }
+
 }
