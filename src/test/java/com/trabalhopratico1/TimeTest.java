@@ -21,4 +21,16 @@ class TimeTest {
         t.setEmpates(empates);
     assertEquals(esperado, t.calcularPontos());
     }
+
+    @Test
+    void desempateRetornaTimeComMaisVitorias() {
+        Time t1 = new Time();
+        t1.setVitorias(5);
+
+        Time t2 = new Time();
+        t2.setVitorias(3);
+
+        Time vencedor = Time.desempate(t1, t2);
+        assertEquals(t1, vencedor);
+    }
 }
