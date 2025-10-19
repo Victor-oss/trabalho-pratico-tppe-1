@@ -106,6 +106,15 @@ public class Time
         return desempate(t1, t2, new Random());
     }
 
+    public static Time confrontoDireto(Time t1, Time t2) {
+    int saldoT1 = t1.getGolsMarcados() - t1.getGolsSofridos();
+    int saldoT2 = t2.getGolsMarcados() - t2.getGolsSofridos();
+
+    if (saldoT1 > saldoT2) return t1;
+    if (saldoT2 > saldoT1) return t2;
+    return null; 
+}
+
     public static Time desempate(Time t1, Time t2, Random rng) {
     int comparacaoVitorias = Integer.compare(t1.getVitorias(), t2.getVitorias());
     if (comparacaoVitorias != 0) {
@@ -120,6 +129,11 @@ public class Time
     int comparacaoGolsMarcados = Integer.compare(t1.getGolsMarcados(), t2.getGolsMarcados());
     if (comparacaoGolsMarcados != 0) {
         return comparacaoGolsMarcados > 0 ? t1 : t2;
+    }
+
+    Time vencedorConfronto = confrontoDireto(t1, t2);
+    if (vencedorConfronto != null) {
+        return vencedorConfronto;
     }
 
     int comparacaoVermelhos = Integer.compare(t1.getCartoesVermelhos(), t2.getCartoesVermelhos());
