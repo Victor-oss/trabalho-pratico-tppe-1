@@ -83,6 +83,10 @@ public class Time
         return (this.vitorias * PONTOS_POR_VITORIA) + (this.empates * PONTOS_POR_EMPATE);
     }
 
+    public int getSaldoDeGols() {
+        return this.golsMarcados - this.golsSofridos;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -97,17 +101,12 @@ public class Time
     }
 
     public static Time desempate(Time t1, Time t2) {
-        if (t1.getVitorias() > t2.getVitorias()) {
-            return t1;
-        } else if (t2.getVitorias() > t1.getVitorias()) {
-            return t2;
+        if (t1.getVitorias() != t2.getVitorias()) {
+            return (t1.getVitorias() > t2.getVitorias()) ? t1 : t2;
         }
-
-        int saldo1 = t1.getGolsMarcados() - t1.getGolsSofridos();
-        int saldo2 = t2.getGolsMarcados() - t2.getGolsSofridos();
-        if (saldo1 > saldo2) return t1;
-        if (saldo2 > saldo1) return t2;
-
+        if (t1.getSaldoDeGols() != t2.getSaldoDeGols()) {
+            return (t1.getSaldoDeGols() > t2.getSaldoDeGols()) ? t1 : t2;
+        }
         return t1;
     }
 }
