@@ -101,21 +101,31 @@ public class Time
     }
 
     public static Time desempate(Time t1, Time t2) {
-        int v1 = t1.getVitorias(), v2 = t2.getVitorias();
-        if (v1 != v2) return (v1 > v2) ? t1 : t2;
-
-        int s1 = t1.getSaldoDeGols(), s2 = t2.getSaldoDeGols();
-        if (s1 != s2) return (s1 > s2) ? t1 : t2;
-
-        int gm1 = t1.getGolsMarcados(), gm2 = t2.getGolsMarcados();
-        if (gm1 != gm2) return (gm1 > gm2) ? t1 : t2;
-
-        int cv1 = t1.getCartoesVermelhos(), cv2 = t2.getCartoesVermelhos();
-        if (cv1 != cv2) return (cv1 < cv2) ? t1 : t2;
-
-        int ca1 = t1.getCartoesAmarelos(), ca2 = t2.getCartoesAmarelos();
-        if (ca1 != ca2) return (ca1 < ca2) ? t1 : t2;
-        
-        return t1;
+    int comparacaoVitorias = Integer.compare(t1.getVitorias(), t2.getVitorias());
+    if (comparacaoVitorias != 0) {
+        return comparacaoVitorias > 0 ? t1 : t2;
     }
+
+    int comparacaoSaldo = Integer.compare(t1.getSaldoDeGols(), t2.getSaldoDeGols());
+    if (comparacaoSaldo != 0) {
+        return comparacaoSaldo > 0 ? t1 : t2;
+    }
+
+    int comparacaoGolsMarcados = Integer.compare(t1.getGolsMarcados(), t2.getGolsMarcados());
+    if (comparacaoGolsMarcados != 0) {
+        return comparacaoGolsMarcados > 0 ? t1 : t2;
+    }
+
+    int comparacaoVermelhos = Integer.compare(t1.getCartoesVermelhos(), t2.getCartoesVermelhos());
+    if (comparacaoVermelhos != 0) {
+        return comparacaoVermelhos < 0 ? t1 : t2;
+    }
+
+    int comparacaoAmarelos = Integer.compare(t1.getCartoesAmarelos(), t2.getCartoesAmarelos());
+    if (comparacaoAmarelos != 0) {
+        return comparacaoAmarelos < 0 ? t1 : t2;
+    }
+
+    return t1;
+}
 }
