@@ -1,5 +1,7 @@
 package com.trabalhopratico1;
 
+import java.util.Random;
+
 public class Time
 {
     private String nome;
@@ -101,6 +103,10 @@ public class Time
     }
 
     public static Time desempate(Time t1, Time t2) {
+        return desempate(t1, t2, new Random());
+    }
+
+    public static Time desempate(Time t1, Time t2, Random rng) {
     int comparacaoVitorias = Integer.compare(t1.getVitorias(), t2.getVitorias());
     if (comparacaoVitorias != 0) {
         return comparacaoVitorias > 0 ? t1 : t2;
@@ -126,6 +132,6 @@ public class Time
         return comparacaoAmarelos < 0 ? t1 : t2;
     }
 
-    return t1;
+    return rng.nextBoolean() ? t1 : t2;
 }
 }

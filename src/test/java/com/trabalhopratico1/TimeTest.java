@@ -2,6 +2,8 @@ package com.trabalhopratico1;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.Random;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class TimeTest {
@@ -51,21 +53,6 @@ class TimeTest {
     }
 
     @Test
-    void desempateRetornaPrimeiroSeVitoriasESaldoIguais() {
-        Time t1 = new Time("Time A");
-        t1.setVitorias(4);
-        t1.setGolsMarcados(10);
-        t1.setGolsSofridos(6); 
-
-        Time t2 = new Time("Time B");
-        t2.setVitorias(4);
-        t2.setGolsMarcados(8);
-        t2.setGolsSofridos(4); 
-
-        assertEquals(t1, Time.desempate(t1, t2));
-    }
-
-    @Test
     void desempateUsaGolsMarcadosComoTerceiroCriterio() {
         Time t1 = new Time("Time A");
         t1.setVitorias(4);
@@ -79,21 +66,6 @@ class TimeTest {
 
         assertEquals(t2, Time.desempate(t1, t2));
         assertEquals(t2, Time.desempate(t2, t1));
-    }
-
-    @Test
-    void desempateRetornaPrimeiroSeTodosCriteriosIguais() {
-        Time t1 = new Time("Time A");
-        t1.setVitorias(4);
-        t1.setGolsMarcados(10);
-        t1.setGolsSofridos(6); 
-
-        Time t2 = new Time("Time B");
-        t2.setVitorias(4);
-        t2.setGolsMarcados(10);
-        t2.setGolsSofridos(6); 
-
-        assertEquals(t1, Time.desempate(t1, t2));
     }
 
     @Test
@@ -115,34 +87,19 @@ class TimeTest {
     }
 
     @Test
-    void desempateRetornaPrimeiroSeTodosQuatroCriteriosIguais() {
-        Time t1 = new Time("Time A");
-        t1.setVitorias(4);
-        t1.setGolsMarcados(10);
-        t1.setGolsSofridos(6);
-        t1.setCartoesVermelhos(2);
-
-        Time t2 = new Time("Time B");
-        t2.setVitorias(4);
-        t2.setGolsMarcados(10);
-        t2.setGolsSofridos(6);
-        t2.setCartoesVermelhos(2);
-
-        assertEquals(t1, Time.desempate(t1, t2));
-    }
-
-    @Test
-    void desempateUsaMenosAmarelosComoQuartoCriterio() {
+    void desempateUsaMenosAmarelosComoQuintoCriterio() {
         Time t1 = new Time("Time A");
         t1.setVitorias(4);
         t1.setGolsMarcados(10);
         t1.setGolsSofridos(6); 
+        t1.setCartoesVermelhos(2);
         t1.setCartoesAmarelos(1);
 
         Time t2 = new Time("Time B");
         t2.setVitorias(4);
         t2.setGolsMarcados(10);
         t2.setGolsSofridos(6); 
+        t2.setCartoesVermelhos(2);
         t2.setCartoesAmarelos(2);
 
         assertEquals(t1, Time.desempate(t1, t2));
