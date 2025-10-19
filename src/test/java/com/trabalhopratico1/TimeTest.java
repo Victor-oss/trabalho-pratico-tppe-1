@@ -141,4 +141,18 @@ class TimeTest {
             return valorRetornado; 
         }
     }
+
+    @Test
+    void confrontoDiretoRetornaTimeComMelhorSaldoNoConfronto() {
+    Time t1 = new Time("Time A");
+    Time t2 = new Time("Time B");
+
+    t1.setGolsMarcados(5);
+    t1.setGolsSofridos(2);
+    t2.setGolsMarcados(2);
+    t2.setGolsSofridos(5);
+
+    assertEquals(t1, Time.confrontoDireto(t1, t2));
+    assertEquals(t1, Time.confrontoDireto(t2, t1));
+}
 }
