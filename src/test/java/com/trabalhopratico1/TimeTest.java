@@ -33,4 +33,35 @@ class TimeTest {
         assertEquals(t1, Time.desempate(t1, t2));
         assertEquals(t1, Time.desempate(t2, t1)); 
     }
+
+    @Test
+    void desempateUsaSaldoDeGolsQuandoVitoriasIguais() {
+        Time t1 = new Time("Time A");
+        t1.setVitorias(4);
+        t1.setGolsMarcados(10);
+        t1.setGolsSofridos(5); 
+
+        Time t2 = new Time("Time B");
+        t2.setVitorias(4);
+        t2.setGolsMarcados(9);
+        t2.setGolsSofridos(7); 
+
+        assertEquals(t1, Time.desempate(t1, t2));
+        assertEquals(t1, Time.desempate(t2, t1));
+    }
+
+    @Test
+    void desempateRetornaPrimeiroSeVitoriasESaldoIguais() {
+        Time t1 = new Time("Time A");
+        t1.setVitorias(4);
+        t1.setGolsMarcados(10);
+        t1.setGolsSofridos(6); 
+
+        Time t2 = new Time("Time B");
+        t2.setVitorias(4);
+        t2.setGolsMarcados(8);
+        t2.setGolsSofridos(4); 
+
+        assertEquals(t1, Time.desempate(t1, t2));
+    }
 }
