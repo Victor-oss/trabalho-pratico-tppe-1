@@ -148,4 +148,30 @@ class TimeTest {
         assertEquals(t1, Time.desempate(t1, t2));
         assertEquals(t1, Time.desempate(t2, t1));
     }
+
+    @Test
+    void desempateFazSorteioQuandoTodosOsCriteriosIguais() {
+        Time t1 = new Time("Time A");
+        t1.setVitorias(4);
+        t1.setGolsMarcados(10);
+        t1.setGolsSofridos(6);
+        t1.setCartoesVermelhos(2);
+        t1.setCartoesAmarelos(3);
+
+        Time t2 = new Time("Time B");
+        t2.setVitorias(4);
+        t2.setGolsMarcados(10);
+        t2.setGolsSofridos(6);
+        t2.setCartoesVermelhos(2);
+        t2.setCartoesAmarelos(3);
+
+        assertEquals(t1, Time.desempate(t1, t2, new RandomStub(true)));
+        assertEquals(t2, Time.desempate(t1, t2, new RandomStub(false)));
+    }
+
+    static class RandomStub extends Random {
+        private final boolean value;
+        RandomStub(boolean value) { this.value = value; }
+        @Override public boolean nextBoolean() { return value; }
+    }
 }
