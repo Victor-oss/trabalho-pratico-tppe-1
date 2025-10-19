@@ -6,17 +6,35 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.trabalhopratico1.exception.BusinessError;
 import com.trabalhopratico1.exception.BusinessException;
 
-public class Campeonato 
+public class Campeonato
 {
     private List<Rodada> rodadas = new ArrayList<>();
+	private List<Time> times = new ArrayList<>();
 
-    public Campeonato () {}
+    public Campeonato (List<Time> times) throws BusinessException {
+		if (times == null) {
+			throw new BusinessException(BusinessError.NULL_LIST);
+		}
+		if (times.size() != 20) {
+			throw new BusinessException(BusinessError.LIST_SIZE_INVALID);
+		}
 
-    public List<Rodada> sortearRodadas(List<String> nomesTimes) throws BusinessException {
-        List<Time> times = this.getTimes(nomesTimes);
+		Set<String> conjunto = new HashSet<>();
+		for (Time time : times) {
+			if (!conjunto.add(time.getNome())) {
+				throw new BusinessException(BusinessError.DUPLICATE_ELEMENTS);
+			}
+		}
 
+		this.times = times;
+		List<Rodada> rodadasSorteadas = sortearRodadas(times);
+		this.rodadas = rodadasSorteadas;
+	}
+
+    public List<Rodada> sortearRodadas(List<Time> times) throws BusinessException {
         this.clearRodadas();
 
         Collections.shuffle(times);
@@ -81,11 +99,15 @@ public class Campeonato
         return times;
     }
 
+	public List<Time> getTimes() {
+		return this.times;
+	}
+
     private void clearRodadas() {
         this.rodadas.clear();
     }
 
-    private List<Rodada> getRodadas() {
+    public List<Rodada> getRodadas() {
         return this.rodadas;
     }
 }

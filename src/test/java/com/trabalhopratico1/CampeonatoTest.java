@@ -1,7 +1,8 @@
 package com.trabalhopratico1;
 
+import com.trabalhopratico1.exception.BusinessError;
 import com.trabalhopratico1.exception.BusinessException;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -14,64 +15,62 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class CampeonatoTest {
 
-    private Campeonato campeonato;
-
-    @BeforeEach
-    void setUp() {
-        campeonato = new Campeonato();
-    }
-
     @Test
+	@DisplayName("Teste criar campeonato com lista nula")
     void testSortearRodadasComListaNula() {
         BusinessException exception = assertThrows(BusinessException.class, () -> {
-            campeonato.sortearRodadas(null);
+            new Campeonato(null);
         });
-        assertEquals("A lista deve conter exatamente 20 elementos.", exception.getMessage());
+        assertEquals(BusinessError.NULL_LIST, exception.getMessage());
     }
 
     @Test
-    void testSortearRodadasComListaIncompleta() {
-        List<String> nomesTimes = Arrays.asList("Time1", "Time2", "Time3");
+	@DisplayName("Teste criar campeonato com lista diferente de 20 elementos")
+    void testCampeonatoSem20Times() {
+        List<Time> nomesTimes = Arrays.asList(
+			new Time("Time1"),
+			new Time("Time2"),
+			new Time("Time3")
+		);
+
         BusinessException exception = assertThrows(BusinessException.class, () -> {
-            campeonato.sortearRodadas(nomesTimes);
+			new Campeonato(nomesTimes);
         });
-        assertEquals("A lista deve conter exatamente 20 elementos.", exception.getMessage());
+        assertEquals(BusinessError.LIST_SIZE_INVALID, exception.getMessage());
+
+		BusinessException exception2 = assertThrows(BusinessException.class, () -> {
+			List<Time> timesCom21 = gerar20Times();
+			timesCom21.add(new Time("Time21"));
+			new Campeonato(timesCom21);
+		});
+		assertEquals(BusinessError.LIST_SIZE_INVALID, exception2.getMessage());
     }
 
     @Test
     void testSortearRodadasComNomeDuplicado() {
-        List<String> nomesTimes = gerar20Times();
+        List<Time> nomesTimes = gerar20Times();
         nomesTimes.set(0, nomesTimes.get(1));
 
         BusinessException exception = assertThrows(BusinessException.class, () -> {
-            campeonato.sortearRodadas(nomesTimes);
+            new Campeonato(nomesTimes);
         });
-        assertEquals("A lista contém elementos duplicados: " + nomesTimes.get(1), exception.getMessage());
+        assertEquals(BusinessError.DUPLICATE_ELEMENTS, exception.getMessage());
     }
 
     @Test
-    void testSortearRodadasComNomeVazio() {
-        List<String> nomesTimes = gerar20Times();
-        nomesTimes.set(5, "  ");
-
-        BusinessException exception = assertThrows(BusinessException.class, () -> {
-            campeonato.sortearRodadas(nomesTimes);
-        });
-        assertEquals("A lista contem elementos nulos ou vazios.", exception.getMessage());
-    }
-
-    @Test
+	@DisplayName("Teste sortear rodadas corretamente")
     public void testSortearRodadas() {
-        List<String> nomesTimes = gerar20Times();
-        List<Time> times;
-        List<Rodada> rodadas;
+
+		Campeonato campeonato;
         try {
-            rodadas = campeonato.sortearRodadas(nomesTimes);
-            times = campeonato.getTimes(nomesTimes);
+			campeonato = new Campeonato(gerar20Times());
         } catch (BusinessException e) {
             assertTrue(false, "Erro no sorteio de rodadas");
             return;
         }
+
+        List<Time> times = campeonato.getTimes();
+        List<Rodada> rodadas = campeonato.getRodadas();
 
         assertEquals(38, rodadas.size(), "Deve haver 38 rodadas");
 
@@ -99,29 +98,36 @@ class CampeonatoTest {
         }
     }
 
-    public static List<String> gerar20Times() {
-        ArrayList<String> times = new ArrayList<>();
+    public static List<Time> gerar20Times() {
+        ArrayList<String> nomesTimes = new ArrayList<>();
 
-        times.add("Flamengo");
-        times.add("Palmeiras");
-        times.add("Santos");
-        times.add("Sao Paulo");
-        times.add("Corinthians");
-        times.add("Gremio");
-        times.add("Internacional");
-        times.add("Vasco da Gama");
-        times.add("Fluminense");
-        times.add("Botafogo");
-        times.add("Atletico Mineiro");
-        times.add("Cruzeiro");
-        times.add("Bahia");
-        times.add("Sport Recife");
-        times.add("Ceara");
-        times.add("Fortaleza");
-        times.add("Athletico Paranaense");
-        times.add("Goias");
-        times.add("Coritiba");
-        times.add("America Mineiro");
+        nomesTimes.add("Flamengo");
+        nomesTimes.add("Palmeiras");
+        nomesTimes.add("Santos");
+        nomesTimes.add("Sao Paulo");
+        nomesTimes.add("Corinthians");
+        nomesTimes.add("Gremio");
+        nomesTimes.add("Internacional");
+        nomesTimes.add("Vasco da Gama");
+        nomesTimes.add("Fluminense");
+        nomesTimes.add("Botafogo");
+        nomesTimes.add("Atletico Mineiro");
+        nomesTimes.add("Cruzeiro");
+        nomesTimes.add("Bahia");
+        nomesTimes.add("Sport Recife");
+        nomesTimes.add("Ceara");
+        nomesTimes.add("Fortaleza");
+        nomesTimes.add("Athletico Paranaense");
+        nomesTimes.add("Goias");
+        nomesTimes.add("Coritiba");
+        nomesTimes.add("America Mineiro");
+
+		List<Time> times = new ArrayList<>();
+
+		for (String nome : nomesTimes) {
+			times.add(new Time(nome));
+		}
+
 
         return times;
     }
