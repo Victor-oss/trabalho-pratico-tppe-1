@@ -108,27 +108,37 @@ class TimeTest {
 
     @Test
     void desempateFazSorteioQuandoTodosOsCriteriosIguais() {
-        Time t1 = new Time("Time A");
-        t1.setVitorias(4);
-        t1.setGolsMarcados(10);
-        t1.setGolsSofridos(6);
-        t1.setCartoesVermelhos(2);
-        t1.setCartoesAmarelos(3);
+        Time t1 = criarTimeComTodasEstatisticas("Time A", 4, 10, 6, 2, 3);
+        Time t2 = criarTimeComTodasEstatisticas("Time B", 4, 10, 6, 2, 3);
 
-        Time t2 = new Time("Time B");
-        t2.setVitorias(4);
-        t2.setGolsMarcados(10);
-        t2.setGolsSofridos(6);
-        t2.setCartoesVermelhos(2);
-        t2.setCartoesAmarelos(3);
+        Time vencedorQuandoPrimeiroSorteado = Time.desempate(t1, t2, new RandomStub(true));
+        Time vencedorQuandoSegundoSorteado = Time.desempate(t1, t2, new RandomStub(false));
 
-        assertEquals(t1, Time.desempate(t1, t2, new RandomStub(true)));
-        assertEquals(t2, Time.desempate(t1, t2, new RandomStub(false)));
+        assertEquals(t1, vencedorQuandoPrimeiroSorteado, "Quando sorteio retorna true, deve retornar primeiro time");
+        assertEquals(t2, vencedorQuandoSegundoSorteado, "Quando sorteio retorna false, deve retornar segundo time");
+    }
+
+    private Time criarTimeComTodasEstatisticas(String nome, int vitorias, int golsMarcados, 
+                                                int golsSofridos, int vermelho, int amarelo) {
+        Time time = new Time(nome);
+        time.setVitorias(vitorias);
+        time.setGolsMarcados(golsMarcados);
+        time.setGolsSofridos(golsSofridos);
+        time.setCartoesVermelhos(vermelho);
+        time.setCartoesAmarelos(amarelo);
+        return time;
     }
 
     static class RandomStub extends Random {
-        private final boolean value;
-        RandomStub(boolean value) { this.value = value; }
-        @Override public boolean nextBoolean() { return value; }
+        private final boolean valorRetornado;
+        
+        RandomStub(boolean valorRetornado) { 
+            this.valorRetornado = valorRetornado; 
+        }
+        
+        @Override 
+        public boolean nextBoolean() { 
+            return valorRetornado; 
+        }
     }
 }

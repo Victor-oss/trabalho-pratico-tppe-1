@@ -132,6 +132,11 @@ public class Time
         return comparacaoAmarelos < 0 ? t1 : t2;
     }
 
-    return rng.nextBoolean() ? t1 : t2;
+    return sorteioCBF(t1, t2, rng);
 }
+
+    private static Time sorteioCBF(Time t1, Time t2, Random rng) {
+        boolean primeiroTimeVence = rng.nextBoolean();
+        return primeiroTimeVence ? t1 : t2;
+    }
 }
