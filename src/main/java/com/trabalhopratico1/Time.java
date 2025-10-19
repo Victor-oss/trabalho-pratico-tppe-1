@@ -95,4 +95,12 @@ public class Time
     public int hashCode() {
         return getNome() != null ? getNome().hashCode() : 0;
     }
+
+    public static Time desempate(Time t1, Time t2) {
+        if (t1.getVitorias() >= t2.getVitorias()) {
+            return t1;
+        } else {
+            return t2;
+        }
+    }
 }
