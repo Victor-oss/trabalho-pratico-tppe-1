@@ -7,11 +7,18 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class TimeTest {
 
     @Test
-    void deveCalcularPontosComo3PorVitoriaMais1PorEmpate() {
-        Time t = new Time("Time de Teste");
-        t.setVitorias(2);
-        t.setEmpates(1);
+    void calculaPontosCasosBasicos() {
+        assertPontos(0, 0, 0);
+        assertPontos(1, 0, 3);
+        assertPontos(0, 1, 1);
+        assertPontos(2, 1, 7);
+        assertPontos(5, 4, 19);
+    }
 
-        assertEquals(7, t.getPontos()); 
+    private void assertPontos(int vitorias, int empates, int esperado) {
+        Time t = new Time("Time de Teste");
+        t.setVitorias(vitorias);
+        t.setEmpates(empates);
+        assertEquals(esperado, t.getPontos());
     }
 }
