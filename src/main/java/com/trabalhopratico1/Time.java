@@ -89,6 +89,23 @@ public class Time
         return this.golsMarcados - this.golsSofridos;
     }
 
+    public void registrarVitoria(int golsFeitos, int golsSofridos) {
+        this.vitorias++;
+        this.golsMarcados += golsFeitos;
+        this.golsSofridos += golsSofridos;
+    }
+
+    public void registrarEmpate(int golsFeitos, int golsSofridos) {
+        this.empates++;
+        this.golsMarcados += golsFeitos;
+        this.golsSofridos += golsSofridos;
+    }
+
+    public void registrarDerrota(int golsFeitos, int golsSofridos) {
+        this.golsMarcados += golsFeitos;
+        this.golsSofridos += golsSofridos;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -116,37 +133,37 @@ public class Time
     }
 
     public static Time desempate(Time t1, Time t2, Random rng) {
-    int comparacaoVitorias = Integer.compare(t1.getVitorias(), t2.getVitorias());
-    if (comparacaoVitorias != 0) {
-        return comparacaoVitorias > 0 ? t1 : t2;
+        int comparacaoVitorias = Integer.compare(t1.getVitorias(), t2.getVitorias());
+        if (comparacaoVitorias != 0) {
+            return comparacaoVitorias > 0 ? t1 : t2;
+        }
+
+        int comparacaoSaldo = Integer.compare(t1.getSaldoDeGols(), t2.getSaldoDeGols());
+        if (comparacaoSaldo != 0) {
+            return comparacaoSaldo > 0 ? t1 : t2;
+        }
+
+        int comparacaoGolsMarcados = Integer.compare(t1.getGolsMarcados(), t2.getGolsMarcados());
+        if (comparacaoGolsMarcados != 0) {
+            return comparacaoGolsMarcados > 0 ? t1 : t2;
+        }
+
+        Time vencedorConfronto = confrontoDireto(t1, t2);
+            if (vencedorConfronto != null)
+                return vencedorConfronto;
+
+        int comparacaoVermelhos = Integer.compare(t1.getCartoesVermelhos(), t2.getCartoesVermelhos());
+        if (comparacaoVermelhos != 0) {
+            return comparacaoVermelhos < 0 ? t1 : t2;
+        }
+
+        int comparacaoAmarelos = Integer.compare(t1.getCartoesAmarelos(), t2.getCartoesAmarelos());
+        if (comparacaoAmarelos != 0) {
+            return comparacaoAmarelos < 0 ? t1 : t2;
+        }
+
+        return sorteioCBF(t1, t2, rng);
     }
-
-    int comparacaoSaldo = Integer.compare(t1.getSaldoDeGols(), t2.getSaldoDeGols());
-    if (comparacaoSaldo != 0) {
-        return comparacaoSaldo > 0 ? t1 : t2;
-    }
-
-    int comparacaoGolsMarcados = Integer.compare(t1.getGolsMarcados(), t2.getGolsMarcados());
-    if (comparacaoGolsMarcados != 0) {
-        return comparacaoGolsMarcados > 0 ? t1 : t2;
-    }
-
-    Time vencedorConfronto = confrontoDireto(t1, t2);
-        if (vencedorConfronto != null)
-            return vencedorConfronto;
-
-    int comparacaoVermelhos = Integer.compare(t1.getCartoesVermelhos(), t2.getCartoesVermelhos());
-    if (comparacaoVermelhos != 0) {
-        return comparacaoVermelhos < 0 ? t1 : t2;
-    }
-
-    int comparacaoAmarelos = Integer.compare(t1.getCartoesAmarelos(), t2.getCartoesAmarelos());
-    if (comparacaoAmarelos != 0) {
-        return comparacaoAmarelos < 0 ? t1 : t2;
-    }
-
-    return sorteioCBF(t1, t2, rng);
-}
 
     private static Time sorteioCBF(Time t1, Time t2, Random rng) {
         boolean primeiroTimeVence = rng.nextBoolean();

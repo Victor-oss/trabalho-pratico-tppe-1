@@ -55,4 +55,21 @@ public class Jogo
     public void setGolsVisitante(int golsVisitante) {
         this.golsVisitante = golsVisitante;
     }
+
+    public void finalizarJogo() {
+        if (realizado) return;
+        realizado = true;
+
+        if (golsMandante > golsVisitante) {
+            mandante.registrarVitoria(golsMandante, golsVisitante);
+            visitante.registrarDerrota(golsVisitante, golsMandante);
+        } else if (golsMandante < golsVisitante) {
+            visitante.registrarVitoria(golsVisitante, golsMandante);
+            mandante.registrarDerrota(golsMandante, golsVisitante);
+        } else {
+            mandante.registrarEmpate(golsMandante, golsVisitante);
+            visitante.registrarEmpate(golsVisitante, golsMandante);
+        }
+    }
+
 }
