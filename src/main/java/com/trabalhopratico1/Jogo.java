@@ -55,4 +55,26 @@ public class Jogo
     public void setGolsVisitante(int golsVisitante) {
         this.golsVisitante = golsVisitante;
     }
+
+    public void finalizarJogo() {
+        if (realizado) return; 
+
+        realizado = true;
+
+        mandante.setGolsMarcados(mandante.getGolsMarcados() + golsMandante);
+        mandante.setGolsSofridos(mandante.getGolsSofridos() + golsVisitante);
+
+        visitante.setGolsMarcados(visitante.getGolsMarcados() + golsVisitante);
+        visitante.setGolsSofridos(visitante.getGolsSofridos() + golsMandante);
+
+        if (golsMandante > golsVisitante) {
+            mandante.setVitorias(mandante.getVitorias() + 1);
+        } else if (golsMandante < golsVisitante) {
+            visitante.setVitorias(visitante.getVitorias() + 1);
+        } else {
+            mandante.setEmpates(mandante.getEmpates() + 1);
+            visitante.setEmpates(visitante.getEmpates() + 1);
+        }
+    }
+
 }
