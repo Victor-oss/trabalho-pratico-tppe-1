@@ -11,14 +11,17 @@ class JogoTest {
     private Time mandante;
     private Time visitante;
     private Jogo jogo;
-    
-    @Test
-    @DisplayName("Deve atualizar estatísticas corretamente quando o mandante vence")
-    void deveAtualizarQuandoMandanteVence() {
+
+    @BeforeEach
+    void setUp() {
         mandante = new Time("Time Mandante");
         visitante = new Time("Time Visitante");
         jogo = new Jogo(mandante, visitante);
+    }
 
+    @Test
+    @DisplayName("Teste deve atualizar estatísticas corretamente quando o mandante vence")
+    void testDeveAtualizarQuandoMandanteVence() {
         jogo.setGolsMandante(3);
         jogo.setGolsVisitante(1);
         jogo.finalizarJogo();
@@ -37,12 +40,8 @@ class JogoTest {
     }
 
     @Test
-    @DisplayName("Deve atualizar estatísticas corretamente quando o visitante vence")
-    void deveAtualizarQuandoVisitanteVence() {
-        mandante = new Time("Time Mandante");
-        visitante = new Time("Time Visitante");
-        jogo = new Jogo(mandante, visitante);
-
+    @DisplayName("Teste deve atualizar estatísticas corretamente quando o visitante vence")
+    void testDeveAtualizarQuandoVisitanteVence() {
         jogo.setGolsMandante(0);
         jogo.setGolsVisitante(2);
         jogo.finalizarJogo();
@@ -61,12 +60,8 @@ class JogoTest {
     }
 
     @Test
-    @DisplayName("Deve registrar empate corretamente")
-    void deveRegistrarEmpateCorretamente() {
-        mandante = new Time("Time Mandante");
-        visitante = new Time("Time Visitante");
-        jogo = new Jogo(mandante, visitante);    
-
+    @DisplayName("Teste deve registrar empate corretamente")
+    void testDeveRegistrarEmpateCorretamente() {
         jogo.setGolsMandante(2);
         jogo.setGolsVisitante(2);
         jogo.finalizarJogo();
@@ -85,21 +80,17 @@ class JogoTest {
     }
 
     @Test
-        @DisplayName("Não deve duplicar atualização se finalizarJogo for chamado mais de uma vez")
-        void testNaoDeveDuplicarAtualizacaoSeFinalizadoNovamente() {
-            mandante = new Time("Time Mandante");
-            visitante = new Time("Time Visitante");
-            jogo = new Jogo(mandante, visitante);            
+    @DisplayName("Teste não deve duplicar atualização se finalizarJogo for chamado mais de uma vez")
+    void testNaoDeveDuplicarAtualizacaoSeFinalizadoNovamente() {
+        jogo.setGolsMandante(1);
+        jogo.setGolsVisitante(0);
 
-            jogo.setGolsMandante(1);
-            jogo.setGolsVisitante(0);
+        jogo.finalizarJogo();
+        jogo.finalizarJogo();
 
-            jogo.finalizarJogo();
-            jogo.finalizarJogo();
-
-            assertEquals(1, mandante.getVitorias());
-            assertEquals(1, mandante.getGolsMarcados());
-            assertEquals(0, visitante.getEmpates());
-        }
+        assertEquals(1, mandante.getVitorias());
+        assertEquals(1, mandante.getGolsMarcados());
+        assertEquals(0, visitante.getEmpates());
+    }
 
 }

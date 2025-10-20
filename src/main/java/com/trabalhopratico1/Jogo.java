@@ -57,23 +57,18 @@ public class Jogo
     }
 
     public void finalizarJogo() {
-        if (realizado) return; 
-
+        if (realizado) return;
         realizado = true;
 
-        mandante.setGolsMarcados(mandante.getGolsMarcados() + golsMandante);
-        mandante.setGolsSofridos(mandante.getGolsSofridos() + golsVisitante);
-
-        visitante.setGolsMarcados(visitante.getGolsMarcados() + golsVisitante);
-        visitante.setGolsSofridos(visitante.getGolsSofridos() + golsMandante);
-
         if (golsMandante > golsVisitante) {
-            mandante.setVitorias(mandante.getVitorias() + 1);
+            mandante.registrarVitoria(golsMandante, golsVisitante);
+            visitante.registrarDerrota(golsVisitante, golsMandante);
         } else if (golsMandante < golsVisitante) {
-            visitante.setVitorias(visitante.getVitorias() + 1);
+            visitante.registrarVitoria(golsVisitante, golsMandante);
+            mandante.registrarDerrota(golsMandante, golsVisitante);
         } else {
-            mandante.setEmpates(mandante.getEmpates() + 1);
-            visitante.setEmpates(visitante.getEmpates() + 1);
+            mandante.registrarEmpate(golsMandante, golsVisitante);
+            visitante.registrarEmpate(golsVisitante, golsMandante);
         }
     }
 
