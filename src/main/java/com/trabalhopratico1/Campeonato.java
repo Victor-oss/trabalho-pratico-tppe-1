@@ -99,7 +99,11 @@ public class Campeonato
         return times;
     }
 
-	public List<Time> getTimes() {
+    public List<Time> getTabelaClassificacao() {
+        return new ArrayList<>(this.times);
+    }
+
+    public List<Time> getTimes() {
 		return this.times;
 	}
 
