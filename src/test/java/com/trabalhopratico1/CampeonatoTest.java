@@ -118,6 +118,28 @@ class CampeonatoTest {
         }
     }
 
+    @Test
+    @DisplayName("Deve ordenar a tabela por pontuação decrescente")
+    void testTimesOrdenadosPorPontuacao() throws BusinessException {
+        Campeonato campeonato = new Campeonato(gerar20Times());
+        List<Time> times = campeonato.getTabelaClassificacao();
+
+        Jogo jogo1 = new Jogo(times.get(0), times.get(1));
+        jogo1.setGolsMandante(0);
+        jogo1.setGolsVisitante(1);
+        jogo1.finalizarJogo();
+
+        Jogo jogo2 = new Jogo(times.get(3), times.get(2));
+        jogo2.setGolsMandante(2);
+        jogo2.setGolsVisitante(0);
+        jogo2.finalizarJogo();
+
+        List<Time> classificacao = campeonato.getTabelaClassificacao();
+
+        assertTrue(classificacao.get(0).calcularPontos() >= classificacao.get(1).calcularPontos());
+        assertTrue(classificacao.get(1).calcularPontos() >= classificacao.get(2).calcularPontos());
+    }
+
     public static List<Time> gerar20Times() {
         ArrayList<String> nomesTimes = new ArrayList<>();
 
