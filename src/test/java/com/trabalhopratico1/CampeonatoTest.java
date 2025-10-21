@@ -98,6 +98,26 @@ class CampeonatoTest {
         }
     }
 
+    @Test
+    @DisplayName("Tabela inicial deve conter 20 times com estatísticas zeradas")
+    void testTabelaClassificacaoInicialVazia() throws BusinessException {
+        Campeonato campeonato = new Campeonato(gerar20Times());
+
+        List<Time> classificacao = campeonato.getTabelaClassificacao();
+
+        assertEquals(20, classificacao.size(), "A tabela de classificação deve conter 20 times.");
+
+        for (Time time : classificacao) {
+            assertEquals(0, time.calcularPontos(), "Pontos iniciais devem ser 0.");
+            assertEquals(0, time.getVitorias(), "Vitórias iniciais devem ser 0.");
+            assertEquals(0, time.getEmpates(), "Empates iniciais devem ser 0.");
+            assertEquals(0, time.getGolsMarcados(), "Gols marcados devem ser 0.");
+            assertEquals(0, time.getGolsSofridos(), "Gols sofridos devem ser 0.");
+            assertEquals(0, time.getCartoesAmarelos(), "Cartões amarelos devem ser 0.");
+            assertEquals(0, time.getCartoesVermelhos(), "Cartões vermelhos devem ser 0.");
+        }
+    }
+
     public static List<Time> gerar20Times() {
         ArrayList<String> nomesTimes = new ArrayList<>();
 
@@ -127,7 +147,6 @@ class CampeonatoTest {
 		for (String nome : nomesTimes) {
 			times.add(new Time(nome));
 		}
-
 
         return times;
     }
