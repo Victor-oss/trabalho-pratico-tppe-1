@@ -1,10 +1,7 @@
 package com.trabalhopratico1;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import com.trabalhopratico1.exception.BusinessError;
 import com.trabalhopratico1.exception.BusinessException;
@@ -100,7 +97,9 @@ public class Campeonato
     }
 
     public List<Time> getTabelaClassificacao() {
-        return new ArrayList<>(this.times);
+        return this.times.stream()
+                .sorted(Comparator.comparingInt(Time::calcularPontos).reversed())
+                .collect(Collectors.toList());
     }
 
     public List<Time> getTimes() {
