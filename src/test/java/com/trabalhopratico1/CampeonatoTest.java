@@ -103,11 +103,11 @@ class CampeonatoTest {
     void testTabelaClassificacaoInicialVazia() throws BusinessException {
         Campeonato campeonato = new Campeonato(gerar20Times());
 
-        List<Time> classificacao = campeonato.getTabelaClassificacao();
+        List<Time> tabelaClassificacao = campeonato.getTabelaClassificacao();
 
-        assertEquals(20, classificacao.size(), "A tabela de classificação deve conter 20 times.");
+        assertEquals(20, tabelaClassificacao.size(), "A tabela de classificação deve conter 20 times.");
 
-        for (Time time : classificacao) {
+        for (Time time : tabelaClassificacao) {
             assertEquals(0, time.calcularPontos(), "Pontos iniciais devem ser 0.");
             assertEquals(0, time.getVitorias(), "Vitórias iniciais devem ser 0.");
             assertEquals(0, time.getEmpates(), "Empates iniciais devem ser 0.");
