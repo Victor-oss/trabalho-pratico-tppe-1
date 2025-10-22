@@ -133,6 +133,25 @@ class CampeonatoTest {
         assertTrue(classificacao.get(1).calcularPontos() >= classificacao.get(2).calcularPontos());
     }
 
+    @Test
+    @DisplayName("Deve desempatar por número de vitórias quando pontos forem iguais")
+    void testDesempatePorVitorias() throws BusinessException {
+        Campeonato campeonato = new Campeonato(gerar20Times());
+        List<Time> times = campeonato.getTimes();
+
+        Time timeMaisVitorias = times.get(1);
+        Time timeMenosVitorias = times.get(0);
+
+        timeMaisVitorias.setVitorias(1); // 3 pts
+        timeMenosVitorias.setEmpates(3); // 3 pts
+
+        List<Time> classificacao = campeonato.getTabelaClassificacao();
+
+        assertEquals(timeMaisVitorias, classificacao.get(0));
+    }
+
+
+
     public static List<Time> gerar20Times() {
         ArrayList<String> nomesTimes = new ArrayList<>();
 
