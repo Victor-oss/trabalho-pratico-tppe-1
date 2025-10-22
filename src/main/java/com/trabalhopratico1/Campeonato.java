@@ -98,37 +98,34 @@ public class Campeonato
 
     public List<Time> getTabelaClassificacao() {
         return this.times.stream()
-                .sorted((t1, t2) -> {
-                    int cmp;
-
-                    cmp = Integer.compare(t2.calcularPontos(), t1.calcularPontos());
-                    if (cmp != 0) return cmp;
-
-                    cmp = Integer.compare(t2.getVitorias(), t1.getVitorias());
-                    if (cmp != 0) return cmp;
-
-                    cmp = Integer.compare(t2.getSaldoDeGols(), t1.getSaldoDeGols());
-                    if (cmp != 0) return cmp;
-
-                    cmp = Integer.compare(t2.getGolsMarcados(), t1.getGolsMarcados());
-                    if (cmp != 0) return cmp;
-
-                    return 0;
-                })
+                .sorted(COMPARATOR_CLASSIFICACAO)
                 .collect(Collectors.toList());
     }
-
-
 
     public List<Time> getTimes() {
 		return this.times;
 	}
 
+    public List<Rodada> getRodadas() {
+        return this.rodadas;
+    }
+
     private void clearRodadas() {
         this.rodadas.clear();
     }
 
-    public List<Rodada> getRodadas() {
-        return this.rodadas;
-    }
+    private static final Comparator<Time> COMPARATOR_CLASSIFICACAO = (t1, t2) -> {
+        int cmp;
+
+        cmp = Integer.compare(t2.calcularPontos(), t1.calcularPontos());
+        if (cmp != 0) return cmp;
+
+        cmp = Integer.compare(t2.getVitorias(), t1.getVitorias());
+        if (cmp != 0) return cmp;
+
+        cmp = Integer.compare(t2.getSaldoDeGols(), t1.getSaldoDeGols());
+        if (cmp != 0) return cmp;
+
+        return Integer.compare(t2.getGolsMarcados(), t1.getGolsMarcados());
+    };
 }
