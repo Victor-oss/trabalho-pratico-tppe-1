@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class CampeonatoTest {
 
     @Test
-	@DisplayName("Teste criar campeonato com lista nula")
+    @DisplayName("Teste criar campeonato com lista nula")
     void testSortearRodadasComListaNula() {
         BusinessException exception = assertThrows(BusinessException.class, () -> {
             new Campeonato(null);
@@ -25,25 +25,25 @@ class CampeonatoTest {
     }
 
     @Test
-	@DisplayName("Teste criar campeonato com lista diferente de 20 elementos")
+    @DisplayName("Teste criar campeonato com lista diferente de 20 elementos")
     void testCampeonatoSem20Times() {
         List<Time> nomesTimes = Arrays.asList(
-			new Time("Time1"),
-			new Time("Time2"),
-			new Time("Time3")
-		);
+                new Time("Time1"),
+                new Time("Time2"),
+                new Time("Time3")
+        );
 
         BusinessException exception = assertThrows(BusinessException.class, () -> {
-			new Campeonato(nomesTimes);
+            new Campeonato(nomesTimes);
         });
         assertEquals(BusinessError.LIST_SIZE_INVALID, exception.getMessage());
 
-		BusinessException exception2 = assertThrows(BusinessException.class, () -> {
-			List<Time> timesCom21 = gerar20Times();
-			timesCom21.add(new Time("Time21"));
-			new Campeonato(timesCom21);
-		});
-		assertEquals(BusinessError.LIST_SIZE_INVALID, exception2.getMessage());
+        BusinessException exception2 = assertThrows(BusinessException.class, () -> {
+            List<Time> timesCom21 = gerar20Times();
+            timesCom21.add(new Time("Time21"));
+            new Campeonato(timesCom21);
+        });
+        assertEquals(BusinessError.LIST_SIZE_INVALID, exception2.getMessage());
     }
 
     @Test
@@ -58,12 +58,12 @@ class CampeonatoTest {
     }
 
     @Test
-	@DisplayName("Teste sortear rodadas corretamente")
+    @DisplayName("Teste sortear rodadas corretamente")
     public void testSortearRodadas() {
 
-		Campeonato campeonato;
+        Campeonato campeonato;
         try {
-			campeonato = new Campeonato(gerar20Times());
+            campeonato = new Campeonato(gerar20Times());
         } catch (BusinessException e) {
             assertTrue(false, "Erro no sorteio de rodadas");
             return;
@@ -213,8 +213,14 @@ class CampeonatoTest {
         vencedorConfronto.setGolsSofridos(5);
         perdedorConfronto.setGolsSofridos(5);
 
-        vencedorConfronto.setGolsMarcados(3);
-        vencedorConfronto.setGolsSofridos(1);
+        Jogo confronto = new Jogo(vencedorConfronto, perdedorConfronto);
+        confronto.setGolsMandante(2);
+        confronto.setGolsVisitante(0);
+        confronto.finalizarJogo();
+
+        Rodada rodada = new Rodada(1);
+        rodada.getJogos().add(confronto);
+        campeonato.getRodadas().add(rodada);
 
         List<Time> classificacao = campeonato.getTabelaClassificacao();
 
@@ -299,9 +305,9 @@ class CampeonatoTest {
         Campeonato campeonato = new Campeonato(gerar20Times());
         List<Time> times = campeonato.getTimes();
 
-        simularJogo(times.get(0), times.get(1), 3, 0); // vitória
-        simularJogo(times.get(2), times.get(3), 1, 1); // empate
-        simularJogo(times.get(4), times.get(5), 0, 2); // derrota
+        simularJogo(times.get(0), times.get(1), 3, 0);
+        simularJogo(times.get(2), times.get(3), 1, 1);
+        simularJogo(times.get(4), times.get(5), 0, 2);
 
         List<Time> classificacao = campeonato.getTabelaClassificacao();
 
@@ -334,11 +340,11 @@ class CampeonatoTest {
         nomesTimes.add("Coritiba");
         nomesTimes.add("America Mineiro");
 
-		List<Time> times = new ArrayList<>();
+        List<Time> times = new ArrayList<>();
 
-		for (String nome : nomesTimes) {
-			times.add(new Time(nome));
-		}
+        for (String nome : nomesTimes) {
+            times.add(new Time(nome));
+        }
 
         return times;
     }

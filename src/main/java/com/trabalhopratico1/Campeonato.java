@@ -1,7 +1,6 @@
 package com.trabalhopratico1;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import com.trabalhopratico1.exception.BusinessError;
 import com.trabalhopratico1.exception.BusinessException;
@@ -9,27 +8,27 @@ import com.trabalhopratico1.exception.BusinessException;
 public class Campeonato
 {
     private List<Rodada> rodadas = new ArrayList<>();
-	private List<Time> times = new ArrayList<>();
+    private List<Time> times = new ArrayList<>();
 
     public Campeonato (List<Time> times) throws BusinessException {
-		if (times == null) {
-			throw new BusinessException(BusinessError.NULL_LIST);
-		}
-		if (times.size() != 20) {
-			throw new BusinessException(BusinessError.LIST_SIZE_INVALID);
-		}
+        if (times == null) {
+            throw new BusinessException(BusinessError.NULL_LIST);
+        }
+        if (times.size() != 20) {
+            throw new BusinessException(BusinessError.LIST_SIZE_INVALID);
+        }
 
-		Set<String> conjunto = new HashSet<>();
-		for (Time time : times) {
-			if (!conjunto.add(time.getNome())) {
-				throw new BusinessException(BusinessError.DUPLICATE_ELEMENTS);
-			}
-		}
+        Set<String> conjunto = new HashSet<>();
+        for (Time time : times) {
+            if (!conjunto.add(time.getNome())) {
+                throw new BusinessException(BusinessError.DUPLICATE_ELEMENTS);
+            }
+        }
 
-		this.times = times;
-		List<Rodada> rodadasSorteadas = sortearRodadas(times);
-		this.rodadas = rodadasSorteadas;
-	}
+        this.times = times;
+        List<Rodada> rodadasSorteadas = sortearRodadas(times);
+        this.rodadas = rodadasSorteadas;
+    }
 
     public List<Rodada> sortearRodadas(List<Time> times) throws BusinessException {
         this.clearRodadas();
@@ -97,21 +96,70 @@ public class Campeonato
     }
 
     public List<Time> getTabelaClassificacao() {
-        return this.times.stream()
-                .sorted((t1, t2) -> {
-                    int cmp = Integer.compare(t2.calcularPontos(), t1.calcularPontos());
-                    if (cmp != 0) return cmp;
-
-                    Time vencedor = Time.desempate(t1, t2);
-                    if (vencedor == null) return 0;
-                    return vencedor == t1 ? -1 : 1;
-                })
-                .collect(Collectors.toList());
+        List<Time> listaTimes = new ArrayList<>(times);
+        listaTimes.sort((t1, t2) -> {
+            int cmpPontos = Integer.compare(t2.calcularPontos(), t1.calcularPontos());
+            if (cmpPontos != 0) return cmpPontos;
+            Time vencedor = desempate(t1, t2);
+            if (vencedor == null) return 0;
+            return vencedor == t1 ? -1 : 1;
+        });
+        return listaTimes;
     }
 
+    public Time desempate(Time t1, Time t2) {
+        int cmpVitorias = Integer.compare(t1.getVitorias(), t2.getVitorias());
+        if (cmpVitorias != 0) return cmpVitorias > 0 ? t1 : t2;
+
+        int cmpSaldo = Integer.compare(t1.getSaldoDeGols(), t2.getSaldoDeGols());
+        if (cmpSaldo != 0) return cmpSaldo > 0 ? t1 : t2;
+
+        int cmpGols = Integer.compare(t1.getGolsMarcados(), t2.getGolsMarcados());
+        if (cmpGols != 0) return cmpGols > 0 ? t1 : t2;
+
+        Time vencedorConfronto = confrontoDireto(t1, t2);
+        if (vencedorConfronto != null) return vencedorConfronto;
+
+        int cmpVermelhos = Integer.compare(t1.getCartoesVermelhos(), t2.getCartoesVermelhos());
+        if (cmpVermelhos != 0) return cmpVermelhos < 0 ? t1 : t2;
+
+        int cmpAmarelos = Integer.compare(t1.getCartoesAmarelos(), t2.getCartoesAmarelos());
+        if (cmpAmarelos != 0) return cmpAmarelos < 0 ? t1 : t2;
+
+        return new Random().nextBoolean() ? t1 : t2;
+    }
+
+    public Time confrontoDireto(Time t1, Time t2) {
+        int pontosT1 = 0;
+        int pontosT2 = 0;
+
+        for (Rodada rodada : rodadas) {
+            for (Jogo jogo : rodada.getJogos()) {
+                if (jogo.isRealizado()) {
+                    if (jogo.getMandante().equals(t1) && jogo.getVisitante().equals(t2)) {
+                        if (jogo.getGolsMandante() > jogo.getGolsVisitante()) pontosT1 += 3;
+                        else if (jogo.getGolsMandante() == jogo.getGolsVisitante()) {
+                            pontosT1++; pontosT2++;
+                        } else pontosT2 += 3;
+                    }
+                    else if (jogo.getMandante().equals(t2) && jogo.getVisitante().equals(t1)) {
+                        if (jogo.getGolsMandante() > jogo.getGolsVisitante()) pontosT2 += 3;
+                        else if (jogo.getGolsMandante() == jogo.getGolsVisitante()) {
+                            pontosT1++; pontosT2++;
+                        } else pontosT1 += 3;
+                    }
+                }
+            }
+        }
+
+        if (pontosT1 == pontosT2) return null;
+        return pontosT1 > pontosT2 ? t1 : t2;
+    }
+
+
     public List<Time> getTimes() {
-		return this.times;
-	}
+        return this.times;
+    }
 
     public List<Rodada> getRodadas() {
         return this.rodadas;
