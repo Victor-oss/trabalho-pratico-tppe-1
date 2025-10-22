@@ -151,6 +151,52 @@ class CampeonatoTest {
     }
 
 
+    @Test
+    @DisplayName("Deve desempatar por saldo de gols quando pontos e vitórias forem iguais")
+    void testDesempatePorSaldoDeGols() throws BusinessException {
+        Campeonato campeonato = new Campeonato(gerar20Times());
+        List<Time> times = campeonato.getTimes();
+
+        Time timeMaiorSaldo = times.get(1);
+        Time timeMenorSaldo = times.get(0);
+
+        timeMaiorSaldo.setVitorias(2);
+        timeMenorSaldo.setVitorias(2);
+
+        timeMaiorSaldo.setGolsMarcados(10);
+        timeMaiorSaldo.setGolsSofridos(5);
+
+        timeMenorSaldo.setGolsMarcados(7);
+        timeMenorSaldo.setGolsSofridos(6);
+
+        List<Time> classificacao = campeonato.getTabelaClassificacao();
+
+        assertEquals(timeMaiorSaldo, classificacao.get(0), "O time com saldo de gols maior deve vir antes quando pontos e vitórias forem iguais");
+    }
+
+    @Test
+    @DisplayName("Deve desempatar por gols marcados quando pontos, vitórias e saldo forem iguais")
+    void testDesempatePorGolsMarcados() throws BusinessException {
+        Campeonato campeonato = new Campeonato(gerar20Times());
+        List<Time> times = campeonato.getTimes();
+
+        Time timeMaisGols = times.get(1);
+        Time timeMenosGols = times.get(0);
+
+        timeMaisGols.setVitorias(2);
+        timeMenosGols.setVitorias(2);
+        assertEquals(timeMaisGols.calcularPontos(), timeMenosGols.calcularPontos());
+
+        timeMaisGols.setGolsMarcados(10);
+        timeMaisGols.setGolsSofridos(5);
+        timeMenosGols.setGolsMarcados(8);
+        timeMenosGols.setGolsSofridos(3);
+
+        List<Time> classificacao = campeonato.getTabelaClassificacao();
+
+        assertEquals(timeMaisGols, classificacao.get(0));
+    }
+
 
     public static List<Time> gerar20Times() {
         ArrayList<String> nomesTimes = new ArrayList<>();
@@ -184,30 +230,6 @@ class CampeonatoTest {
 
         return times;
     }
-
-    @Test
-    @DisplayName("Deve desempatar por saldo de gols quando pontos e vitórias forem iguais")
-    void testDesempatePorSaldoDeGols() throws BusinessException {
-        Campeonato campeonato = new Campeonato(gerar20Times());
-        List<Time> times = campeonato.getTimes();
-
-        Time timeMaiorSaldo = times.get(1);
-        Time timeMenorSaldo = times.get(0);
-
-        timeMaiorSaldo.setVitorias(2);
-        timeMenorSaldo.setVitorias(2);
-
-        timeMaiorSaldo.setGolsMarcados(10);
-        timeMaiorSaldo.setGolsSofridos(5);
-
-        timeMenorSaldo.setGolsMarcados(7);
-        timeMenorSaldo.setGolsSofridos(6);
-
-        List<Time> classificacao = campeonato.getTabelaClassificacao();
-
-        assertEquals(timeMaiorSaldo, classificacao.get(0), "O time com saldo de gols maior deve vir antes quando pontos e vitórias forem iguais");
-    }
-
 
     private void simularJogo(Time mandante, Time visitante, int golsMandante, int golsVisitante) {
         Jogo jogo = new Jogo(mandante, visitante);
