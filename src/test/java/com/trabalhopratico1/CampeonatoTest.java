@@ -185,6 +185,32 @@ class CampeonatoTest {
         return times;
     }
 
+    @Test
+    @DisplayName("Deve desempatar por saldo de gols quando pontos e vitórias forem iguais")
+    void testDesempatePorSaldoDeGols() throws BusinessException {
+        Campeonato campeonato = new Campeonato(gerar20Times());
+        List<Time> times = campeonato.getTimes();
+
+        Time timeMaiorSaldo = times.get(1);
+        Time timeMenorSaldo = times.get(0);
+
+        timeMaiorSaldo.setVitorias(2);
+        timeMenorSaldo.setVitorias(2);
+
+        assertEquals(timeMaiorSaldo.calcularPontos(), timeMenorSaldo.calcularPontos());
+
+        timeMaiorSaldo.setGolsMarcados(10);
+        timeMaiorSaldo.setGolsSofridos(5);
+
+        timeMenorSaldo.setGolsMarcados(7);
+        timeMenorSaldo.setGolsSofridos(6);
+
+        List<Time> classificacao = campeonato.getTabelaClassificacao();
+
+        assertEquals(timeMaiorSaldo, classificacao.get(0));
+    }
+
+
     private void simularJogo(Time mandante, Time visitante, int golsMandante, int golsVisitante) {
         Jogo jogo = new Jogo(mandante, visitante);
         jogo.setGolsMandante(golsMandante);
