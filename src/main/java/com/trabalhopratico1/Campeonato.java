@@ -98,7 +98,14 @@ public class Campeonato
 
     public List<Time> getTabelaClassificacao() {
         return this.times.stream()
-                .sorted(COMPARATOR_CLASSIFICACAO)
+                .sorted((t1, t2) -> {
+                    int cmp = Integer.compare(t2.calcularPontos(), t1.calcularPontos());
+                    if (cmp != 0) return cmp;
+
+                    Time vencedor = Time.desempate(t1, t2);
+                    if (vencedor == null) return 0;
+                    return vencedor == t1 ? -1 : 1;
+                })
                 .collect(Collectors.toList());
     }
 
@@ -113,23 +120,5 @@ public class Campeonato
     private void clearRodadas() {
         this.rodadas.clear();
     }
-
-    private static final Comparator<Time> COMPARATOR_CLASSIFICACAO = (t1, t2) -> {
-        int cmp;
-
-        cmp = Integer.compare(t2.calcularPontos(), t1.calcularPontos());
-        if (cmp != 0) return cmp;
-
-        cmp = Integer.compare(t2.getVitorias(), t1.getVitorias());
-        if (cmp != 0) return cmp;
-
-        cmp = Integer.compare(t2.getSaldoDeGols(), t1.getSaldoDeGols());
-        if (cmp != 0) return cmp;
-
-        cmp = Integer.compare(t2.getGolsMarcados(), t1.getGolsMarcados());
-        if (cmp != 0) return cmp;
-
-        return Integer.compare(t1.getCartoesVermelhos(), t2.getCartoesVermelhos());
-    };
 
 }

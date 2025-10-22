@@ -139,8 +139,8 @@ class CampeonatoTest {
         Campeonato campeonato = new Campeonato(gerar20Times());
         List<Time> times = campeonato.getTimes();
 
-        Time timeMaisVitorias = times.get(1);
-        Time timeMenosVitorias = times.get(0);
+        Time timeMaisVitorias = times.get(0);
+        Time timeMenosVitorias = times.get(1);
 
         timeMaisVitorias.setVitorias(1);
         timeMenosVitorias.setEmpates(3);
@@ -157,8 +157,8 @@ class CampeonatoTest {
         Campeonato campeonato = new Campeonato(gerar20Times());
         List<Time> times = campeonato.getTimes();
 
-        Time timeMaiorSaldo = times.get(1);
-        Time timeMenorSaldo = times.get(0);
+        Time timeMaiorSaldo = times.get(0);
+        Time timeMenorSaldo = times.get(1);
 
         timeMaiorSaldo.setVitorias(2);
         timeMenorSaldo.setVitorias(2);
@@ -180,8 +180,8 @@ class CampeonatoTest {
         Campeonato campeonato = new Campeonato(gerar20Times());
         List<Time> times = campeonato.getTimes();
 
-        Time timeMaisGols = times.get(1);
-        Time timeMenosGols = times.get(0);
+        Time timeMaisGols = times.get(0);
+        Time timeMenosGols = times.get(1);
 
         timeMaisGols.setVitorias(2);
         timeMenosGols.setVitorias(2);
