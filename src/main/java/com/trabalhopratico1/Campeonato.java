@@ -101,6 +101,7 @@ public class Campeonato
                 .sorted(
                         Comparator.comparingInt(Time::calcularPontos).reversed()
                                 .thenComparing(Comparator.comparingInt(Time::getVitorias).reversed())
+                                .thenComparing(Comparator.comparingInt(Time::getSaldoDeGols).reversed())
                 )
                 .collect(Collectors.toList());
     }
