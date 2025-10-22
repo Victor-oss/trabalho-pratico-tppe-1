@@ -98,9 +98,13 @@ public class Campeonato
 
     public List<Time> getTabelaClassificacao() {
         return this.times.stream()
-                .sorted(Comparator.comparingInt(Time::calcularPontos).reversed())
+                .sorted(
+                        Comparator.comparingInt(Time::calcularPontos).reversed()
+                                .thenComparing(Comparator.comparingInt(Time::getVitorias).reversed())
+                )
                 .collect(Collectors.toList());
     }
+
 
     public List<Time> getTimes() {
 		return this.times;
