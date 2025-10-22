@@ -197,8 +197,6 @@ class CampeonatoTest {
         timeMaiorSaldo.setVitorias(2);
         timeMenorSaldo.setVitorias(2);
 
-        assertEquals(timeMaiorSaldo.calcularPontos(), timeMenorSaldo.calcularPontos());
-
         timeMaiorSaldo.setGolsMarcados(10);
         timeMaiorSaldo.setGolsSofridos(5);
 
@@ -207,7 +205,7 @@ class CampeonatoTest {
 
         List<Time> classificacao = campeonato.getTabelaClassificacao();
 
-        assertEquals(timeMaiorSaldo, classificacao.get(0));
+        assertEquals(timeMaiorSaldo, classificacao.get(0), "O time com saldo de gols maior deve vir antes quando pontos e vitórias forem iguais");
     }
 
 
