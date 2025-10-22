@@ -98,13 +98,26 @@ public class Campeonato
 
     public List<Time> getTabelaClassificacao() {
         return this.times.stream()
-                .sorted(
-                        Comparator.comparingInt(Time::calcularPontos).reversed()
-                                .thenComparing(Comparator.comparingInt(Time::getVitorias).reversed())
-                                .thenComparing(Comparator.comparingInt(Time::getSaldoDeGols).reversed())
-                )
+                .sorted((t1, t2) -> {
+                    int cmp;
+
+                    cmp = Integer.compare(t2.calcularPontos(), t1.calcularPontos());
+                    if (cmp != 0) return cmp;
+
+                    cmp = Integer.compare(t2.getVitorias(), t1.getVitorias());
+                    if (cmp != 0) return cmp;
+
+                    cmp = Integer.compare(t2.getSaldoDeGols(), t1.getSaldoDeGols());
+                    if (cmp != 0) return cmp;
+
+                    cmp = Integer.compare(t2.getGolsMarcados(), t1.getGolsMarcados());
+                    if (cmp != 0) return cmp;
+
+                    return 0;
+                })
                 .collect(Collectors.toList());
     }
+
 
 
     public List<Time> getTimes() {
