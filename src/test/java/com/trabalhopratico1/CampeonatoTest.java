@@ -147,7 +147,7 @@ class CampeonatoTest {
 
         List<Time> classificacao = campeonato.getTabelaClassificacao();
 
-        assertEquals(timeMaisVitorias, classificacao.get(0));
+        assertEquals(timeMaisVitorias, classificacao.get(0), "O time com mais vitórias deve vir antes quando os pontos forem iguais");
     }
 
 
