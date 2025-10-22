@@ -126,6 +126,10 @@ public class Campeonato
         cmp = Integer.compare(t2.getSaldoDeGols(), t1.getSaldoDeGols());
         if (cmp != 0) return cmp;
 
-        return Integer.compare(t2.getGolsMarcados(), t1.getGolsMarcados());
+        cmp = Integer.compare(t2.getGolsMarcados(), t1.getGolsMarcados());
+        if (cmp != 0) return cmp;
+
+        return Integer.compare(t1.getCartoesVermelhos(), t2.getCartoesVermelhos());
     };
+
 }
