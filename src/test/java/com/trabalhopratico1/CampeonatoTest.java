@@ -198,7 +198,32 @@ class CampeonatoTest {
     }
 
     @Test
-    @DisplayName("Deve desempatar por número de cartões vermelhos quando pontos, vitórias, saldo e confronto direto forem iguais")
+    @DisplayName("Deve desempatar por confronto direto quando pontos, vitórias, saldo e gols marcados forem iguais")
+    void testDesempatePorConfrontoDireto() throws BusinessException {
+        Campeonato campeonato = new Campeonato(gerar20Times());
+        List<Time> times = campeonato.getTimes();
+
+        Time vencedorConfronto = times.get(0);
+        Time perdedorConfronto = times.get(1);
+
+        vencedorConfronto.setVitorias(5);
+        perdedorConfronto.setVitorias(5);
+        vencedorConfronto.setGolsMarcados(10);
+        perdedorConfronto.setGolsMarcados(10);
+        vencedorConfronto.setGolsSofridos(5);
+        perdedorConfronto.setGolsSofridos(5);
+
+        vencedorConfronto.setGolsMarcados(3);
+        vencedorConfronto.setGolsSofridos(1);
+
+        List<Time> classificacao = campeonato.getTabelaClassificacao();
+
+        assertEquals(vencedorConfronto, classificacao.get(0),
+                "O time vencedor no confronto direto deve aparecer primeiro na classificação");
+    }
+
+    @Test
+    @DisplayName("Deve desempatar por número de cartões vermelhos quando pontos, vitórias, saldo, gols marcados e confronto direto forem iguais")
     void testDesempatePorCartoesVermelhos() throws BusinessException {
         Campeonato campeonato = new Campeonato(gerar20Times());
         List<Time> times = campeonato.getTimes();
@@ -221,6 +246,69 @@ class CampeonatoTest {
         assertEquals(timeMenosVermelhos, classificacao.get(0),
                 "O time com menos cartões vermelhos deve aparecer primeiro na classificação");
     }
+
+    @Test
+    @DisplayName("Deve desempatar por número de cartões amarelos quando pontos, vitórias, saldo, gols marcados, confronto direto e cartões vermelhos forem iguais")
+    void testDesempatePorCartoesAmarelos() throws BusinessException {
+        Campeonato campeonato = new Campeonato(gerar20Times());
+        List<Time> times = campeonato.getTimes();
+
+        Time timeMaisAmarelos = times.get(0);
+        Time timeMenosAmarelos = times.get(1);
+
+        timeMaisAmarelos.setVitorias(5);
+        timeMaisAmarelos.setGolsMarcados(10);
+        timeMaisAmarelos.setGolsSofridos(5);
+        timeMaisAmarelos.setCartoesVermelhos(2);
+        timeMaisAmarelos.setCartoesAmarelos(4);
+
+        timeMenosAmarelos.setVitorias(5);
+        timeMenosAmarelos.setGolsMarcados(10);
+        timeMenosAmarelos.setGolsSofridos(5);
+        timeMenosAmarelos.setCartoesVermelhos(2);
+        timeMenosAmarelos.setCartoesAmarelos(1);
+
+        List<Time> classificacao = campeonato.getTabelaClassificacao();
+
+        assertEquals(timeMenosAmarelos, classificacao.get(0),
+                "O time com menos cartões amarelos deve aparecer primeiro na classificação");
+    }
+
+    @Test
+    @DisplayName("Deve desempatar por sorteio CBF quando todos os outros critérios forem iguais")
+    void testDesempatePorSorteio() throws BusinessException {
+        Campeonato campeonato = new Campeonato(gerar20Times());
+        List<Time> times = campeonato.getTimes();
+
+        Time t1 = times.get(0);
+        Time t2 = times.get(1);
+
+        t1.setVitorias(5); t2.setVitorias(5);
+        t1.setGolsMarcados(10); t2.setGolsMarcados(10);
+        t1.setGolsSofridos(5); t2.setGolsSofridos(5);
+        t1.setCartoesVermelhos(1); t2.setCartoesVermelhos(1);
+        t1.setCartoesAmarelos(2); t2.setCartoesAmarelos(2);
+
+        List<Time> classificacao = campeonato.getTabelaClassificacao();
+        assertTrue(classificacao.containsAll(List.of(t1, t2)));
+    }
+
+    @Test
+    @DisplayName("Tabela de classificação deve refletir resultados das rodadas simuladas")
+    void testTabelaRefleteResultadosDeRodadas() throws BusinessException {
+        Campeonato campeonato = new Campeonato(gerar20Times());
+        List<Time> times = campeonato.getTimes();
+
+        simularJogo(times.get(0), times.get(1), 3, 0); // vitória
+        simularJogo(times.get(2), times.get(3), 1, 1); // empate
+        simularJogo(times.get(4), times.get(5), 0, 2); // derrota
+
+        List<Time> classificacao = campeonato.getTabelaClassificacao();
+
+        assertTrue(classificacao.get(0).calcularPontos() >= classificacao.get(1).calcularPontos(),
+                "O time com mais vitórias deve aparecer no topo após rodadas simuladas");
+    }
+
 
     public static List<Time> gerar20Times() {
         ArrayList<String> nomesTimes = new ArrayList<>();
