@@ -197,6 +197,30 @@ class CampeonatoTest {
         assertEquals(timeMaisGols, classificacao.get(0));
     }
 
+    @Test
+    @DisplayName("Deve desempatar por número de cartões vermelhos quando pontos, vitórias, saldo e confronto direto forem iguais")
+    void testDesempatePorCartoesVermelhos() throws BusinessException {
+        Campeonato campeonato = new Campeonato(gerar20Times());
+        List<Time> times = campeonato.getTimes();
+
+        Time timeMaisVermelhos  = times.get(0);
+        Time timeMenosVermelhos = times.get(1);
+
+        timeMaisVermelhos.setVitorias(5);
+        timeMaisVermelhos.setGolsMarcados(10);
+        timeMaisVermelhos.setGolsSofridos(5);
+        timeMaisVermelhos.setCartoesVermelhos(3);
+
+        timeMenosVermelhos.setVitorias(5);
+        timeMenosVermelhos.setGolsMarcados(10);
+        timeMenosVermelhos.setGolsSofridos(5);
+        timeMenosVermelhos.setCartoesVermelhos(1);
+
+        List<Time> classificacao = campeonato.getTabelaClassificacao();
+
+        assertEquals(timeMenosVermelhos, classificacao.get(0),
+                "O time com menos cartões vermelhos deve aparecer primeiro na classificação");
+    }
 
     public static List<Time> gerar20Times() {
         ArrayList<String> nomesTimes = new ArrayList<>();
