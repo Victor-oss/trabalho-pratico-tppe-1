@@ -142,8 +142,8 @@ class CampeonatoTest {
         Time timeMaisVitorias = times.get(1);
         Time timeMenosVitorias = times.get(0);
 
-        timeMaisVitorias.setVitorias(1); // 3 pts
-        timeMenosVitorias.setEmpates(3); // 3 pts
+        timeMaisVitorias.setVitorias(1);
+        timeMenosVitorias.setEmpates(3);
 
         List<Time> classificacao = campeonato.getTabelaClassificacao();
 
