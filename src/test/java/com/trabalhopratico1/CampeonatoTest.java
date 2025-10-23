@@ -3,6 +3,7 @@ package com.trabalhopratico1;
 import com.trabalhopratico1.exception.BusinessError;
 import com.trabalhopratico1.exception.BusinessException;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -13,6 +14,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Tag("funcional")
 class CampeonatoTest {
 
     @Test
@@ -315,6 +317,69 @@ class CampeonatoTest {
                 "O time com mais vitórias deve aparecer no topo após rodadas simuladas");
     }
 
+
+    @Test
+    @DisplayName("Deve ordenar corretamente os 20 times aplicando todos os critérios de desempate")
+    void testTabelaClassificacaoCompleta() throws BusinessException {
+        List<Time> times = new ArrayList<>();
+        for (int i = 1; i <= 20; i++) {
+            Time time = new Time("Time" + i);
+            times.add(time);
+        }
+
+        Campeonato campeonato = new Campeonato(times);
+
+        // Grupo 1: t1 e t2 empatados em todos critérios -> desempate por confronto direto, t2 que vem primeiro
+
+        Time t1 = times.get(0);
+        Time t2 = times.get(1);
+        t1.setGolsMarcados(8); t2.setGolsMarcados(8);
+        campeonato.mockResultadoConfrontoDireto(t1, t2);
+
+        // Grupo 2: t3 e t4 empatados em todos critérios -> desempate por cartões vermelhos
+        Time t3 = times.get(2);
+        Time t4 = times.get(3);
+        t3.setCartoesVermelhos(2); t4.setCartoesVermelhos(1);
+
+        // Grupo 3: t5 e t6 empatados em todos critérios -> desempate por cartões amarelos
+        Time t5 = times.get(4);
+        Time t6 = times.get(5);
+        t5.setCartoesAmarelos(3); t6.setCartoesAmarelos(1);
+
+        // t7 -> 4º lugar
+        Time t7 = times.get(6);
+        t7.setGolsMarcados(10);
+        t7.setGolsSofridos(1);
+
+        // t8 -> 3º lugar
+        Time t8 = times.get(7);
+        t8.setGolsMarcados(10);
+
+        // t9 -> 2º lugar
+        Time t9 = times.get(8);
+        t9.setVitorias(11);
+        t9.setEmpates(1);
+
+        // t10 -> 1º lugar
+        Time t10 = times.get(9);
+        t10.setVitorias(12);
+
+        List<Time> classificacao = campeonato.getTabelaClassificacao();
+
+        assertEquals(t10, classificacao.get(0));
+        assertEquals(t9, classificacao.get(1));
+        assertEquals(t8, classificacao.get(2));
+        assertEquals(t7, classificacao.get(3));
+        assertEquals(t2, classificacao.get(4));
+        assertEquals(t1, classificacao.get(5));
+        assertEquals(t4, classificacao.get(18));
+        assertEquals(t3, classificacao.get(19));
+        assertEquals(t6, classificacao.get(16));
+        assertEquals(t5, classificacao.get(17));
+
+        assertEquals(20, classificacao.size());
+        assertTrue(classificacao.containsAll(times));
+    }
 
     public static List<Time> gerar20Times() {
         ArrayList<String> nomesTimes = new ArrayList<>();

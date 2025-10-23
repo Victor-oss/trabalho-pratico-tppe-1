@@ -2,6 +2,8 @@ package com.trabalhopratico1;
 
 import java.util.*;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import com.trabalhopratico1.exception.BusinessError;
 import com.trabalhopratico1.exception.BusinessException;
 
@@ -33,16 +35,17 @@ public class Campeonato
     public List<Rodada> sortearRodadas(List<Time> times) throws BusinessException {
         this.clearRodadas();
 
-        Collections.shuffle(times);
+        List<Time> timesEmbaralhados = new ArrayList<>(times);
+        Collections.shuffle(timesEmbaralhados);
 
         int n = 20;
-        List<Time> timesRotacionaveis = new ArrayList<>(times.subList(1, n));
+        List<Time> timesRotacionaveis = new ArrayList<>(timesEmbaralhados.subList(1, n));
         int numRodadasPrimeiraMetade = 19;
 
         for (int r = 0; r < numRodadasPrimeiraMetade; r++) {
             Rodada rodada = new Rodada(r + 1);
             List<Time> rodadaTimes = new ArrayList<>();
-            rodadaTimes.add(times.get(0));
+            rodadaTimes.add(timesEmbaralhados.get(0));
             rodadaTimes.addAll(timesRotacionaveis);
 
             for (int i = 0; i < n / 2; i++) {
@@ -97,36 +100,82 @@ public class Campeonato
 
     public List<Time> getTabelaClassificacao() {
         List<Time> listaTimes = new ArrayList<>(times);
+        Map<String, Pair<Integer, Integer>> pontosTimeIndiceInicialIndiceFinal = new HashMap<>();
+
         listaTimes.sort((t1, t2) -> {
             int cmpPontos = Integer.compare(t2.calcularPontos(), t1.calcularPontos());
             if (cmpPontos != 0) return cmpPontos;
-            Time vencedor = desempate(t1, t2);
-            if (vencedor == null) return 0;
-            return vencedor == t1 ? -1 : 1;
+            int cmpVitorias = Integer.compare(t2.getVitorias(), t1.getVitorias());
+            if (cmpVitorias != 0) return cmpVitorias;
+            int cmpSaldo = Integer.compare(t2.getSaldoDeGols(), t1.getSaldoDeGols());
+            if (cmpSaldo != 0) return cmpSaldo;
+            return Integer.compare(t2.getGolsMarcados(), t1.getGolsMarcados());
         });
+
+        for (int i = 0; i < listaTimes.size(); i++) {
+            Time time = listaTimes.get(i);
+
+            String key = time.calcularPontos() + "|" +
+                        time.getVitorias() + "|" +
+                        time.getSaldoDeGols() + "|" +
+                        time.getGolsMarcados();
+
+            if (!pontosTimeIndiceInicialIndiceFinal.containsKey(key)) {
+                pontosTimeIndiceInicialIndiceFinal.put(key, Pair.of(i, i));
+            } else {
+                Pair<Integer, Integer> atual = pontosTimeIndiceInicialIndiceFinal.get(key);
+                pontosTimeIndiceInicialIndiceFinal.put(key, Pair.of(atual.getKey(), i));
+            }
+        }
+
+        Map<String, Pair<Integer, Integer>> cartoesTimeIndiceInicialIndiceFinal = new HashMap<>();
+
+        for (Map.Entry<String, Pair<Integer, Integer>> entrada : pontosTimeIndiceInicialIndiceFinal.entrySet()) {
+            Pair<Integer, Integer> intervalo = entrada.getValue();
+            int indiceInicio = intervalo.getLeft();
+            int indiceFim = intervalo.getRight();
+
+            if (indiceInicio != indiceFim) {
+                List<Time> subLista = listaTimes.subList(indiceInicio, indiceFim + 1);
+                final Time vencedorConfronto = subLista.size() == 2 ? confrontoDireto(subLista.get(0), subLista.get(1)) : null;
+                subLista.sort((t1, t2) -> {
+                    if (vencedorConfronto != null) {
+                        if (t1.equals(vencedorConfronto)) return -1;
+                        else return 1;
+                    }
+                    int cmpCartoesVermelhos = Integer.compare(t1.getCartoesVermelhos(), t2.getCartoesVermelhos());
+                    if (cmpCartoesVermelhos != 0) return cmpCartoesVermelhos;
+
+                    return Integer.compare(t1.getCartoesAmarelos(), t2.getCartoesAmarelos());
+                });
+
+                if(vencedorConfronto == null) {
+                    for(int i = indiceInicio; i <= indiceFim; i++) {
+                        Time time = listaTimes.get(i);
+                        String key = time.getCartoesVermelhos() + "|" + time.getCartoesAmarelos();
+                        if (!cartoesTimeIndiceInicialIndiceFinal.containsKey(key)) {
+                            cartoesTimeIndiceInicialIndiceFinal.put(key, Pair.of(i, i));
+                        } else {
+                            Pair<Integer, Integer> atual = cartoesTimeIndiceInicialIndiceFinal.get(key);
+                            cartoesTimeIndiceInicialIndiceFinal.put(key, Pair.of(atual.getKey(), i));
+                        }
+                    }
+                }
+            }
+        }
+
+        for (Map.Entry<String, Pair<Integer, Integer>> entrada : cartoesTimeIndiceInicialIndiceFinal.entrySet()) {
+            Pair<Integer, Integer> intervalo = entrada.getValue();
+            int indiceInicio = intervalo.getLeft();
+            int indiceFim = intervalo.getRight();
+
+            if (indiceInicio != indiceFim) {
+                List<Time> subLista = listaTimes.subList(indiceInicio, indiceFim + 1);
+
+                Collections.shuffle(subLista);
+            }
+        }
         return listaTimes;
-    }
-
-    public Time desempate(Time t1, Time t2) {
-        int cmpVitorias = Integer.compare(t1.getVitorias(), t2.getVitorias());
-        if (cmpVitorias != 0) return cmpVitorias > 0 ? t1 : t2;
-
-        int cmpSaldo = Integer.compare(t1.getSaldoDeGols(), t2.getSaldoDeGols());
-        if (cmpSaldo != 0) return cmpSaldo > 0 ? t1 : t2;
-
-        int cmpGols = Integer.compare(t1.getGolsMarcados(), t2.getGolsMarcados());
-        if (cmpGols != 0) return cmpGols > 0 ? t1 : t2;
-
-        Time vencedorConfronto = confrontoDireto(t1, t2);
-        if (vencedorConfronto != null) return vencedorConfronto;
-
-        int cmpVermelhos = Integer.compare(t1.getCartoesVermelhos(), t2.getCartoesVermelhos());
-        if (cmpVermelhos != 0) return cmpVermelhos < 0 ? t1 : t2;
-
-        int cmpAmarelos = Integer.compare(t1.getCartoesAmarelos(), t2.getCartoesAmarelos());
-        if (cmpAmarelos != 0) return cmpAmarelos < 0 ? t1 : t2;
-
-        return new Random().nextBoolean() ? t1 : t2;
     }
 
     public Time confrontoDireto(Time t1, Time t2) {
@@ -163,6 +212,23 @@ public class Campeonato
 
     public List<Rodada> getRodadas() {
         return this.rodadas;
+    }
+
+    public void mockResultadoConfrontoDireto(Time t1, Time t2) {
+        for (Rodada rodada : rodadas) {
+            for (Jogo jogo : rodada.getJogos()) {
+                if (jogo.getMandante().equals(t1) && jogo.getVisitante().equals(t2)) {
+                    jogo.setGolsMandante(0);
+                    jogo.setGolsVisitante(1);
+                    jogo.setRealizado(true);
+                }
+                else if (jogo.getMandante().equals(t2) && jogo.getVisitante().equals(t1)) {
+                    jogo.setGolsMandante(1);
+                    jogo.setGolsVisitante(0);
+                    jogo.setRealizado(true);
+                }
+            }
+        }
     }
 
     private void clearRodadas() {
