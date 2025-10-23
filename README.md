@@ -6,7 +6,14 @@ Buildar o projeto
 mvn clean compile
 ```
 
-Rodar os testes:
+Rodar suite de testes:
+
+```
+ mvn -Dtest=com.trabalhopratico1.AllTests test
+```
+
+
+Rodar todos os testes:
 
 ```
 mvn test

@@ -3,6 +3,7 @@ package com.trabalhopratico1;
 import com.trabalhopratico1.exception.BusinessError;
 import com.trabalhopratico1.exception.BusinessException;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -13,10 +14,11 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Tag("funcional")
 class CampeonatoTest {
 
     @Test
-	@DisplayName("Teste criar campeonato com lista nula")
+    @DisplayName("Teste criar campeonato com lista nula")
     void testSortearRodadasComListaNula() {
         BusinessException exception = assertThrows(BusinessException.class, () -> {
             new Campeonato(null);
@@ -25,25 +27,25 @@ class CampeonatoTest {
     }
 
     @Test
-	@DisplayName("Teste criar campeonato com lista diferente de 20 elementos")
+    @DisplayName("Teste criar campeonato com lista diferente de 20 elementos")
     void testCampeonatoSem20Times() {
         List<Time> nomesTimes = Arrays.asList(
-			new Time("Time1"),
-			new Time("Time2"),
-			new Time("Time3")
-		);
+                new Time("Time1"),
+                new Time("Time2"),
+                new Time("Time3")
+        );
 
         BusinessException exception = assertThrows(BusinessException.class, () -> {
-			new Campeonato(nomesTimes);
+            new Campeonato(nomesTimes);
         });
         assertEquals(BusinessError.LIST_SIZE_INVALID, exception.getMessage());
 
-		BusinessException exception2 = assertThrows(BusinessException.class, () -> {
-			List<Time> timesCom21 = gerar20Times();
-			timesCom21.add(new Time("Time21"));
-			new Campeonato(timesCom21);
-		});
-		assertEquals(BusinessError.LIST_SIZE_INVALID, exception2.getMessage());
+        BusinessException exception2 = assertThrows(BusinessException.class, () -> {
+            List<Time> timesCom21 = gerar20Times();
+            timesCom21.add(new Time("Time21"));
+            new Campeonato(timesCom21);
+        });
+        assertEquals(BusinessError.LIST_SIZE_INVALID, exception2.getMessage());
     }
 
     @Test
@@ -58,12 +60,12 @@ class CampeonatoTest {
     }
 
     @Test
-	@DisplayName("Teste sortear rodadas corretamente")
+    @DisplayName("Teste sortear rodadas corretamente")
     public void testSortearRodadas() {
 
-		Campeonato campeonato;
+        Campeonato campeonato;
         try {
-			campeonato = new Campeonato(gerar20Times());
+            campeonato = new Campeonato(gerar20Times());
         } catch (BusinessException e) {
             assertTrue(false, "Erro no sorteio de rodadas");
             return;
@@ -98,6 +100,287 @@ class CampeonatoTest {
         }
     }
 
+    @Test
+    @DisplayName("Tabela inicial deve conter 20 times com estatísticas zeradas")
+    void testTabelaClassificacaoInicialVazia() throws BusinessException {
+        Campeonato campeonato = new Campeonato(gerar20Times());
+
+        List<Time> tabelaClassificacao = campeonato.getTabelaClassificacao();
+
+        assertEquals(20, tabelaClassificacao.size(), "A tabela de classificação deve conter 20 times.");
+
+        for (Time time : tabelaClassificacao) {
+            assertEquals(0, time.calcularPontos(), "Pontos iniciais devem ser 0.");
+            assertEquals(0, time.getVitorias(), "Vitórias iniciais devem ser 0.");
+            assertEquals(0, time.getEmpates(), "Empates iniciais devem ser 0.");
+            assertEquals(0, time.getGolsMarcados(), "Gols marcados devem ser 0.");
+            assertEquals(0, time.getGolsSofridos(), "Gols sofridos devem ser 0.");
+            assertEquals(0, time.getCartoesAmarelos(), "Cartões amarelos devem ser 0.");
+            assertEquals(0, time.getCartoesVermelhos(), "Cartões vermelhos devem ser 0.");
+        }
+    }
+
+    @Test
+    @DisplayName("Deve ordenar a tabela por pontuação decrescente")
+    void testTimesOrdenadosPorPontuacao() throws BusinessException {
+        Campeonato campeonato = new Campeonato(gerar20Times());
+        List<Time> times = campeonato.getTimes();
+
+        simularJogo(times.get(0), times.get(1), 0, 1);
+        simularJogo(times.get(3), times.get(2), 2, 0);
+
+        List<Time> classificacao = campeonato.getTabelaClassificacao();
+
+        assertTrue(classificacao.get(0).calcularPontos() >= classificacao.get(1).calcularPontos());
+        assertTrue(classificacao.get(1).calcularPontos() >= classificacao.get(2).calcularPontos());
+    }
+
+    @Test
+    @DisplayName("Deve desempatar por número de vitórias quando pontos forem iguais")
+    void testDesempatePorVitorias() throws BusinessException {
+        Campeonato campeonato = new Campeonato(gerar20Times());
+        List<Time> times = campeonato.getTimes();
+
+        Time timeMaisVitorias = times.get(0);
+        Time timeMenosVitorias = times.get(1);
+
+        timeMaisVitorias.setVitorias(1);
+        timeMenosVitorias.setEmpates(3);
+
+        List<Time> classificacao = campeonato.getTabelaClassificacao();
+
+        assertEquals(timeMaisVitorias, classificacao.get(0), "O time com mais vitórias deve vir antes quando os pontos forem iguais");
+    }
+
+
+    @Test
+    @DisplayName("Deve desempatar por saldo de gols quando pontos e vitórias forem iguais")
+    void testDesempatePorSaldoDeGols() throws BusinessException {
+        Campeonato campeonato = new Campeonato(gerar20Times());
+        List<Time> times = campeonato.getTimes();
+
+        Time timeMaiorSaldo = times.get(0);
+        Time timeMenorSaldo = times.get(1);
+
+        timeMaiorSaldo.setVitorias(2);
+        timeMenorSaldo.setVitorias(2);
+
+        timeMaiorSaldo.setGolsMarcados(10);
+        timeMaiorSaldo.setGolsSofridos(5);
+
+        timeMenorSaldo.setGolsMarcados(7);
+        timeMenorSaldo.setGolsSofridos(6);
+
+        List<Time> classificacao = campeonato.getTabelaClassificacao();
+
+        assertEquals(timeMaiorSaldo, classificacao.get(0), "O time com saldo de gols maior deve vir antes quando pontos e vitórias forem iguais");
+    }
+
+    @Test
+    @DisplayName("Deve desempatar por gols marcados quando pontos, vitórias e saldo forem iguais")
+    void testDesempatePorGolsMarcados() throws BusinessException {
+        Campeonato campeonato = new Campeonato(gerar20Times());
+        List<Time> times = campeonato.getTimes();
+
+        Time timeMaisGols = times.get(0);
+        Time timeMenosGols = times.get(1);
+
+        timeMaisGols.setVitorias(2);
+        timeMenosGols.setVitorias(2);
+        assertEquals(timeMaisGols.calcularPontos(), timeMenosGols.calcularPontos());
+
+        timeMaisGols.setGolsMarcados(10);
+        timeMaisGols.setGolsSofridos(5);
+        timeMenosGols.setGolsMarcados(8);
+        timeMenosGols.setGolsSofridos(3);
+
+        List<Time> classificacao = campeonato.getTabelaClassificacao();
+
+        assertEquals(timeMaisGols, classificacao.get(0));
+    }
+
+    @Test
+    @DisplayName("Deve desempatar por confronto direto quando pontos, vitórias, saldo e gols marcados forem iguais")
+    void testDesempatePorConfrontoDireto() throws BusinessException {
+        Campeonato campeonato = new Campeonato(gerar20Times());
+        List<Time> times = campeonato.getTimes();
+
+        Time vencedorConfronto = times.get(0);
+        Time perdedorConfronto = times.get(1);
+
+        vencedorConfronto.setVitorias(5);
+        perdedorConfronto.setVitorias(5);
+        vencedorConfronto.setGolsMarcados(10);
+        perdedorConfronto.setGolsMarcados(10);
+        vencedorConfronto.setGolsSofridos(5);
+        perdedorConfronto.setGolsSofridos(5);
+
+        Jogo confronto = new Jogo(vencedorConfronto, perdedorConfronto);
+        confronto.setGolsMandante(2);
+        confronto.setGolsVisitante(0);
+        confronto.finalizarJogo();
+
+        Rodada rodada = new Rodada(1);
+        rodada.getJogos().add(confronto);
+        campeonato.getRodadas().add(rodada);
+
+        List<Time> classificacao = campeonato.getTabelaClassificacao();
+
+        assertEquals(vencedorConfronto, classificacao.get(0),
+                "O time vencedor no confronto direto deve aparecer primeiro na classificação");
+    }
+
+    @Test
+    @DisplayName("Deve desempatar por número de cartões vermelhos quando pontos, vitórias, saldo, gols marcados e confronto direto forem iguais")
+    void testDesempatePorCartoesVermelhos() throws BusinessException {
+        Campeonato campeonato = new Campeonato(gerar20Times());
+        List<Time> times = campeonato.getTimes();
+
+        Time timeMaisVermelhos  = times.get(0);
+        Time timeMenosVermelhos = times.get(1);
+
+        timeMaisVermelhos.setVitorias(5);
+        timeMaisVermelhos.setGolsMarcados(10);
+        timeMaisVermelhos.setGolsSofridos(5);
+        timeMaisVermelhos.setCartoesVermelhos(3);
+
+        timeMenosVermelhos.setVitorias(5);
+        timeMenosVermelhos.setGolsMarcados(10);
+        timeMenosVermelhos.setGolsSofridos(5);
+        timeMenosVermelhos.setCartoesVermelhos(1);
+
+        List<Time> classificacao = campeonato.getTabelaClassificacao();
+
+        assertEquals(timeMenosVermelhos, classificacao.get(0),
+                "O time com menos cartões vermelhos deve aparecer primeiro na classificação");
+    }
+
+    @Test
+    @DisplayName("Deve desempatar por número de cartões amarelos quando pontos, vitórias, saldo, gols marcados, confronto direto e cartões vermelhos forem iguais")
+    void testDesempatePorCartoesAmarelos() throws BusinessException {
+        Campeonato campeonato = new Campeonato(gerar20Times());
+        List<Time> times = campeonato.getTimes();
+
+        Time timeMaisAmarelos = times.get(0);
+        Time timeMenosAmarelos = times.get(1);
+
+        timeMaisAmarelos.setVitorias(5);
+        timeMaisAmarelos.setGolsMarcados(10);
+        timeMaisAmarelos.setGolsSofridos(5);
+        timeMaisAmarelos.setCartoesVermelhos(2);
+        timeMaisAmarelos.setCartoesAmarelos(4);
+
+        timeMenosAmarelos.setVitorias(5);
+        timeMenosAmarelos.setGolsMarcados(10);
+        timeMenosAmarelos.setGolsSofridos(5);
+        timeMenosAmarelos.setCartoesVermelhos(2);
+        timeMenosAmarelos.setCartoesAmarelos(1);
+
+        List<Time> classificacao = campeonato.getTabelaClassificacao();
+
+        assertEquals(timeMenosAmarelos, classificacao.get(0),
+                "O time com menos cartões amarelos deve aparecer primeiro na classificação");
+    }
+
+    @Test
+    @DisplayName("Deve desempatar por sorteio CBF quando todos os outros critérios forem iguais")
+    void testDesempatePorSorteio() throws BusinessException {
+        Campeonato campeonato = new Campeonato(gerar20Times());
+        List<Time> times = campeonato.getTimes();
+
+        Time t1 = times.get(0);
+        Time t2 = times.get(1);
+
+        t1.setVitorias(5); t2.setVitorias(5);
+        t1.setGolsMarcados(10); t2.setGolsMarcados(10);
+        t1.setGolsSofridos(5); t2.setGolsSofridos(5);
+        t1.setCartoesVermelhos(1); t2.setCartoesVermelhos(1);
+        t1.setCartoesAmarelos(2); t2.setCartoesAmarelos(2);
+
+        List<Time> classificacao = campeonato.getTabelaClassificacao();
+        assertTrue(classificacao.containsAll(List.of(t1, t2)));
+    }
+
+    @Test
+    @DisplayName("Tabela de classificação deve refletir resultados das rodadas simuladas")
+    void testTabelaRefleteResultadosDeRodadas() throws BusinessException {
+        Campeonato campeonato = new Campeonato(gerar20Times());
+        List<Time> times = campeonato.getTimes();
+
+        simularJogo(times.get(0), times.get(1), 3, 0);
+        simularJogo(times.get(2), times.get(3), 1, 1);
+        simularJogo(times.get(4), times.get(5), 0, 2);
+
+        List<Time> classificacao = campeonato.getTabelaClassificacao();
+
+        assertTrue(classificacao.get(0).calcularPontos() >= classificacao.get(1).calcularPontos(),
+                "O time com mais vitórias deve aparecer no topo após rodadas simuladas");
+    }
+
+
+    @Test
+    @DisplayName("Deve ordenar corretamente os 20 times aplicando todos os critérios de desempate")
+    void testTabelaClassificacaoCompleta() throws BusinessException {
+        List<Time> times = new ArrayList<>();
+        for (int i = 1; i <= 20; i++) {
+            Time time = new Time("Time" + i);
+            times.add(time);
+        }
+
+        Campeonato campeonato = new Campeonato(times);
+
+        // Grupo 1: t1 e t2 empatados em todos critérios -> desempate por confronto direto, t2 que vem primeiro
+
+        Time t1 = times.get(0);
+        Time t2 = times.get(1);
+        t1.setGolsMarcados(8); t2.setGolsMarcados(8);
+        campeonato.mockResultadoConfrontoDireto(t1, t2);
+
+        // Grupo 2: t3 e t4 empatados em todos critérios -> desempate por cartões vermelhos
+        Time t3 = times.get(2);
+        Time t4 = times.get(3);
+        t3.setCartoesVermelhos(2); t4.setCartoesVermelhos(1);
+
+        // Grupo 3: t5 e t6 empatados em todos critérios -> desempate por cartões amarelos
+        Time t5 = times.get(4);
+        Time t6 = times.get(5);
+        t5.setCartoesAmarelos(3); t6.setCartoesAmarelos(1);
+
+        // t7 -> 4º lugar
+        Time t7 = times.get(6);
+        t7.setGolsMarcados(10);
+        t7.setGolsSofridos(1);
+
+        // t8 -> 3º lugar
+        Time t8 = times.get(7);
+        t8.setGolsMarcados(10);
+
+        // t9 -> 2º lugar
+        Time t9 = times.get(8);
+        t9.setVitorias(11);
+        t9.setEmpates(1);
+
+        // t10 -> 1º lugar
+        Time t10 = times.get(9);
+        t10.setVitorias(12);
+
+        List<Time> classificacao = campeonato.getTabelaClassificacao();
+
+        assertEquals(t10, classificacao.get(0));
+        assertEquals(t9, classificacao.get(1));
+        assertEquals(t8, classificacao.get(2));
+        assertEquals(t7, classificacao.get(3));
+        assertEquals(t2, classificacao.get(4));
+        assertEquals(t1, classificacao.get(5));
+        assertEquals(t4, classificacao.get(18));
+        assertEquals(t3, classificacao.get(19));
+        assertEquals(t6, classificacao.get(16));
+        assertEquals(t5, classificacao.get(17));
+
+        assertEquals(20, classificacao.size());
+        assertTrue(classificacao.containsAll(times));
+    }
+
     public static List<Time> gerar20Times() {
         ArrayList<String> nomesTimes = new ArrayList<>();
 
@@ -122,13 +405,19 @@ class CampeonatoTest {
         nomesTimes.add("Coritiba");
         nomesTimes.add("America Mineiro");
 
-		List<Time> times = new ArrayList<>();
+        List<Time> times = new ArrayList<>();
 
-		for (String nome : nomesTimes) {
-			times.add(new Time(nome));
-		}
-
+        for (String nome : nomesTimes) {
+            times.add(new Time(nome));
+        }
 
         return times;
+    }
+
+    private void simularJogo(Time mandante, Time visitante, int golsMandante, int golsVisitante) {
+        Jogo jogo = new Jogo(mandante, visitante);
+        jogo.setGolsMandante(golsMandante);
+        jogo.setGolsVisitante(golsVisitante);
+        jogo.finalizarJogo();
     }
 }
