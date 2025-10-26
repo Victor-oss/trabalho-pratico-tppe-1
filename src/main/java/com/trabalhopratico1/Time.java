@@ -122,8 +122,8 @@ public class Time
     public static Time desempate(Time t1, Time t2) {
         return desempate(t1, t2, new Random());
     }
-
-     public static Time confrontoDireto(Time t1, Time t2) {
+    
+    public static Time confrontoDireto(Time t1, Time t2) {
         if (t1 == null || t2 == null) {
             throw new IllegalArgumentException("Times não podem ser nulos");
         }
@@ -133,6 +133,10 @@ public class Time
     }
 
     public static Time desempate(Time t1, Time t2, Random rng) {
+        if (t1 == null || t2 == null) {
+            throw new IllegalArgumentException("Times não podem ser nulos");
+        }
+        
         int comparacaoVitorias = Integer.compare(t1.getVitorias(), t2.getVitorias());
         if (comparacaoVitorias != 0) {
             return comparacaoVitorias > 0 ? t1 : t2;
@@ -147,10 +151,6 @@ public class Time
         if (comparacaoGolsMarcados != 0) {
             return comparacaoGolsMarcados > 0 ? t1 : t2;
         }
-
-        Time vencedorConfronto = confrontoDireto(t1, t2);
-            if (vencedorConfronto != null)
-                return vencedorConfronto;
 
         int comparacaoVermelhos = Integer.compare(t1.getCartoesVermelhos(), t2.getCartoesVermelhos());
         if (comparacaoVermelhos != 0) {

@@ -57,19 +57,30 @@ public class Jogo
     }
 
     public void finalizarJogo() {
-        if (realizado) return;
+        if (realizado) {
+            return;
+        }
+        
         realizado = true;
 
-        if (golsMandante > golsVisitante) {
+        if (mandanteVenceu()) {
             mandante.registrarVitoria(golsMandante, golsVisitante);
             visitante.registrarDerrota(golsVisitante, golsMandante);
-        } else if (golsMandante < golsVisitante) {
+        } else if (visitanteVenceu()) {
             visitante.registrarVitoria(golsVisitante, golsMandante);
             mandante.registrarDerrota(golsMandante, golsVisitante);
         } else {
             mandante.registrarEmpate(golsMandante, golsVisitante);
             visitante.registrarEmpate(golsVisitante, golsMandante);
         }
+    }
+    
+    private boolean mandanteVenceu() {
+        return golsMandante > golsVisitante;
+    }
+    
+    private boolean visitanteVenceu() {
+        return golsMandante < golsVisitante;
     }
 
 }

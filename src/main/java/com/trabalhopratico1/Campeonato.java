@@ -9,6 +9,10 @@ import com.trabalhopratico1.exception.BusinessException;
 
 public class Campeonato
 {
+    private static final int NUMERO_TIMES = 20;
+    private static final int PONTOS_VITORIA = 3;
+    private static final int PONTOS_EMPATE = 1;
+    
     private List<Rodada> rodadas = new ArrayList<>();
     private List<Time> times = new ArrayList<>();
 
@@ -16,7 +20,7 @@ public class Campeonato
         if (times == null) {
             throw new BusinessException(BusinessError.NULL_LIST);
         }
-        if (times.size() != 20) {
+        if (times.size() != NUMERO_TIMES) {
             throw new BusinessException(BusinessError.LIST_SIZE_INVALID);
         }
 
@@ -28,56 +32,13 @@ public class Campeonato
         }
 
         this.times = times;
-        List<Rodada> rodadasSorteadas = sortearRodadas(times);
-        this.rodadas = rodadasSorteadas;
-    }
-
-    public List<Rodada> sortearRodadas(List<Time> times) throws BusinessException {
-        this.clearRodadas();
-
-        List<Time> timesEmbaralhados = new ArrayList<>(times);
-        Collections.shuffle(timesEmbaralhados);
-
-        int n = 20;
-        List<Time> timesRotacionaveis = new ArrayList<>(timesEmbaralhados.subList(1, n));
-        int numRodadasPrimeiraMetade = 19;
-
-        for (int r = 0; r < numRodadasPrimeiraMetade; r++) {
-            Rodada rodada = new Rodada(r + 1);
-            List<Time> rodadaTimes = new ArrayList<>();
-            rodadaTimes.add(timesEmbaralhados.get(0));
-            rodadaTimes.addAll(timesRotacionaveis);
-
-            for (int i = 0; i < n / 2; i++) {
-                Time mandante = rodadaTimes.get(i);
-                Time visitante = rodadaTimes.get(n - 1 - i);
-                rodada.addJogo(mandante, visitante);
-            }
-
-            rodadas.add(rodada);
-
-            Time last = timesRotacionaveis.remove(timesRotacionaveis.size() - 1);
-            timesRotacionaveis.add(0, last);
-        }
-
-        int rodadaNum = numRodadasPrimeiraMetade + 1;
-        for (int r = 0; r < numRodadasPrimeiraMetade; r++, rodadaNum++) {
-            Rodada rodada = new Rodada(rodadaNum + 1);
-            Rodada primeiraMetadeRodada = rodadas.get(r);
-
-            for (Jogo jogo : primeiraMetadeRodada.getJogos()) {
-                rodada.addJogo(jogo.getVisitante(), jogo.getMandante());
-            }
-
-            rodadas.add(rodada);
-        }
-
-        return this.getRodadas();
+        SorteadorRodadas sorteador = new SorteadorRodadas(times);
+        this.rodadas = sorteador.sortear();
     }
 
     public List<Time> getTimes(List<String> nomesTimes) throws BusinessException {
-        if (nomesTimes == null || nomesTimes.size() != 20) {
-            throw new BusinessException("A lista deve conter exatamente 20 elementos.");
+        if (nomesTimes == null || nomesTimes.size() != NUMERO_TIMES) {
+            throw new BusinessException(BusinessError.LIST_SIZE_INVALID);
         }
 
         Set<String> conjunto = new HashSet<>();
@@ -85,11 +46,11 @@ public class Campeonato
         List<Time> times = new ArrayList<>();
         for (String nomeTime : nomesTimes) {
             if (nomeTime == null || nomeTime.trim().isEmpty()) {
-                throw new BusinessException("A lista contem elementos nulos ou vazios.");
+                throw new BusinessException(BusinessError.NULL_OR_EMPTY_ELEMENT);
             }
 
             if (!conjunto.add(nomeTime)) {
-                throw new BusinessException("A lista contém elementos duplicados: " + nomeTime);
+                throw new BusinessException(BusinessError.DUPLICATE_ELEMENTS + nomeTime);
             }
             Time time = new Time(nomeTime);
             times.add(time);
@@ -110,17 +71,10 @@ public class Campeonato
         for (Rodada rodada : rodadas) {
             for (Jogo jogo : rodada.getJogos()) {
                 if (jogo.isRealizado()) {
-                    if (jogo.getMandante().equals(t1) && jogo.getVisitante().equals(t2)) {
-                        if (jogo.getGolsMandante() > jogo.getGolsVisitante()) pontosT1 += 3;
-                        else if (jogo.getGolsMandante() == jogo.getGolsVisitante()) {
-                            pontosT1++; pontosT2++;
-                        } else pontosT2 += 3;
-                    }
-                    else if (jogo.getMandante().equals(t2) && jogo.getVisitante().equals(t1)) {
-                        if (jogo.getGolsMandante() > jogo.getGolsVisitante()) pontosT2 += 3;
-                        else if (jogo.getGolsMandante() == jogo.getGolsVisitante()) {
-                            pontosT1++; pontosT2++;
-                        } else pontosT1 += 3;
+                    if (jogoEnvolveTime(jogo, t1, t2)) {
+                        Pair<Integer, Integer> pontos = calcularPontosJogo(jogo, t1, t2);
+                        pontosT1 += pontos.getLeft();
+                        pontosT2 += pontos.getRight();
                     }
                 }
             }
@@ -128,6 +82,31 @@ public class Campeonato
 
         if (pontosT1 == pontosT2) return null;
         return pontosT1 > pontosT2 ? t1 : t2;
+    }
+    
+    private boolean jogoEnvolveTime(Jogo jogo, Time t1, Time t2) {
+        return (jogo.getMandante().equals(t1) && jogo.getVisitante().equals(t2)) ||
+               (jogo.getMandante().equals(t2) && jogo.getVisitante().equals(t1));
+    }
+    
+    private Pair<Integer, Integer> calcularPontosJogo(Jogo jogo, Time t1, Time t2) {
+        int pontosT1 = 0;
+        int pontosT2 = 0;
+        
+        boolean t1EhMandante = jogo.getMandante().equals(t1);
+        int golsT1 = t1EhMandante ? jogo.getGolsMandante() : jogo.getGolsVisitante();
+        int golsT2 = t1EhMandante ? jogo.getGolsVisitante() : jogo.getGolsMandante();
+        
+        if (golsT1 > golsT2) {
+            pontosT1 = PONTOS_VITORIA;
+        } else if (golsT1 == golsT2) {
+            pontosT1 = PONTOS_EMPATE;
+            pontosT2 = PONTOS_EMPATE;
+        } else {
+            pontosT2 = PONTOS_VITORIA;
+        }
+        
+        return Pair.of(pontosT1, pontosT2);
     }
 
 
@@ -154,10 +133,6 @@ public class Campeonato
                 }
             }
         }
-    }
-
-    private void clearRodadas() {
-        this.rodadas.clear();
     }
 
 }
