@@ -1,6 +1,7 @@
 package com.trabalhopratico1;
 
 import java.util.*;
+import java.util.function.Function;
 
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -98,84 +99,102 @@ public class Campeonato
         return times;
     }
 
-    public List<Time> getTabelaClassificacao() {
-        List<Time> listaTimes = new ArrayList<>(times);
-        Map<String, Pair<Integer, Integer>> pontosTimeIndiceInicialIndiceFinal = new HashMap<>();
+    private String gerarChaveCriteriosPrimarios(Time time) {
+        return time.calcularPontos() + "|" +
+            time.getVitorias() + "|" +
+            time.getSaldoDeGols() + "|" +
+            time.getGolsMarcados();
+    }
 
-        listaTimes.sort((t1, t2) -> {
-            int cmpPontos = Integer.compare(t2.calcularPontos(), t1.calcularPontos());
-            if (cmpPontos != 0) return cmpPontos;
-            int cmpVitorias = Integer.compare(t2.getVitorias(), t1.getVitorias());
-            if (cmpVitorias != 0) return cmpVitorias;
-            int cmpSaldo = Integer.compare(t2.getSaldoDeGols(), t1.getSaldoDeGols());
-            if (cmpSaldo != 0) return cmpSaldo;
-            return Integer.compare(t2.getGolsMarcados(), t1.getGolsMarcados());
-        });
+    private Integer compararPorCriteriosPrimarios(Time t1, Time t2) {
+        int cmpPontos = Integer.compare(t2.calcularPontos(), t1.calcularPontos());
+        if (cmpPontos != 0) return cmpPontos;
+        int cmpVitorias = Integer.compare(t2.getVitorias(), t1.getVitorias());
+        if (cmpVitorias != 0) return cmpVitorias;
+        int cmpSaldo = Integer.compare(t2.getSaldoDeGols(), t1.getSaldoDeGols());
+        if (cmpSaldo != 0) return cmpSaldo;
+        return Integer.compare(t2.getGolsMarcados(), t1.getGolsMarcados());
+    }
 
-        for (int i = 0; i < listaTimes.size(); i++) {
+    private String gerarChaveCriteriosSecundarios(Time time) {
+        return time.getCartoesVermelhos() + "|" + time.getCartoesAmarelos();
+    }
+
+    private Integer compararPorCriteriosSecundarios(Time t1, Time t2, Time vencedorConfronto) {
+        if (vencedorConfronto != null) {
+            return t1.equals(vencedorConfronto) ? -1 : 1;
+        }
+        int cmpCartoesVermelhos = Integer.compare(t1.getCartoesVermelhos(), t2.getCartoesVermelhos());
+        if (cmpCartoesVermelhos != 0) return cmpCartoesVermelhos;
+
+        return Integer.compare(t1.getCartoesAmarelos(), t2.getCartoesAmarelos());
+    }
+
+    private void mapearTimesEmpatados(Map<String, Pair<Integer, Integer>> mapaEmpates, int indiceInicio, int indiceFim, List<Time> listaTimes, Function<Time, String> geradorChave) {
+        for(int i = indiceInicio; i < indiceFim; i++) {
             Time time = listaTimes.get(i);
-
-            String key = time.calcularPontos() + "|" +
-                        time.getVitorias() + "|" +
-                        time.getSaldoDeGols() + "|" +
-                        time.getGolsMarcados();
-
-            if (!pontosTimeIndiceInicialIndiceFinal.containsKey(key)) {
-                pontosTimeIndiceInicialIndiceFinal.put(key, Pair.of(i, i));
+            String chave = geradorChave.apply(time);
+            if (!mapaEmpates.containsKey(chave)) {
+                mapaEmpates.put(chave, Pair.of(i, i));
             } else {
-                Pair<Integer, Integer> atual = pontosTimeIndiceInicialIndiceFinal.get(key);
-                pontosTimeIndiceInicialIndiceFinal.put(key, Pair.of(atual.getKey(), i));
+                Pair<Integer, Integer> intervaloAtual = mapaEmpates.get(chave);
+                mapaEmpates.put(chave, Pair.of(intervaloAtual.getKey(), i));
             }
         }
+    }
 
-        Map<String, Pair<Integer, Integer>> cartoesTimeIndiceInicialIndiceFinal = new HashMap<>();
+    private void aplicarDesempatePorCriteriosSecundarios(List<Time> times, Map<String, Pair<Integer, Integer>> timesEmpatadosPorCriteriosPrimarios) {
+        Map<String, Pair<Integer, Integer>> timesEmpatadosPorCriteriosSecundarios = new HashMap<>();
 
-        for (Map.Entry<String, Pair<Integer, Integer>> entrada : pontosTimeIndiceInicialIndiceFinal.entrySet()) {
+        for (Map.Entry<String, Pair<Integer, Integer>> entrada : timesEmpatadosPorCriteriosPrimarios.entrySet()) {
             Pair<Integer, Integer> intervalo = entrada.getValue();
             int indiceInicio = intervalo.getLeft();
             int indiceFim = intervalo.getRight();
 
             if (indiceInicio != indiceFim) {
-                List<Time> subLista = listaTimes.subList(indiceInicio, indiceFim + 1);
-                final Time vencedorConfronto = subLista.size() == 2 ? confrontoDireto(subLista.get(0), subLista.get(1)) : null;
-                subLista.sort((t1, t2) -> {
-                    if (vencedorConfronto != null) {
-                        if (t1.equals(vencedorConfronto)) return -1;
-                        else return 1;
-                    }
-                    int cmpCartoesVermelhos = Integer.compare(t1.getCartoesVermelhos(), t2.getCartoesVermelhos());
-                    if (cmpCartoesVermelhos != 0) return cmpCartoesVermelhos;
+                List<Time> timesEmpatados = times.subList(indiceInicio, indiceFim + 1);
+                final Time vencedorConfronto = timesEmpatados.size() == 2 ?
+                    confrontoDireto(timesEmpatados.get(0), timesEmpatados.get(1)) : null;
 
-                    return Integer.compare(t1.getCartoesAmarelos(), t2.getCartoesAmarelos());
-                });
+                timesEmpatados.sort((t1, t2) -> compararPorCriteriosSecundarios(t1, t2, vencedorConfronto));
 
                 if(vencedorConfronto == null) {
-                    for(int i = indiceInicio; i <= indiceFim; i++) {
-                        Time time = listaTimes.get(i);
-                        String key = time.getCartoesVermelhos() + "|" + time.getCartoesAmarelos();
-                        if (!cartoesTimeIndiceInicialIndiceFinal.containsKey(key)) {
-                            cartoesTimeIndiceInicialIndiceFinal.put(key, Pair.of(i, i));
-                        } else {
-                            Pair<Integer, Integer> atual = cartoesTimeIndiceInicialIndiceFinal.get(key);
-                            cartoesTimeIndiceInicialIndiceFinal.put(key, Pair.of(atual.getKey(), i));
-                        }
-                    }
+                    mapearTimesEmpatados(timesEmpatadosPorCriteriosSecundarios, indiceInicio, indiceFim + 1, times, this::gerarChaveCriteriosSecundarios);
                 }
             }
         }
 
-        for (Map.Entry<String, Pair<Integer, Integer>> entrada : cartoesTimeIndiceInicialIndiceFinal.entrySet()) {
+        aplicarSorteioParaTimesEmpatados(times, timesEmpatadosPorCriteriosSecundarios);
+    }
+
+    private void aplicarSorteioParaTimesEmpatados(List<Time> times, Map<String, Pair<Integer, Integer>> timesEmpatados) {
+        for (Map.Entry<String, Pair<Integer, Integer>> entrada : timesEmpatados.entrySet()) {
             Pair<Integer, Integer> intervalo = entrada.getValue();
             int indiceInicio = intervalo.getLeft();
             int indiceFim = intervalo.getRight();
 
             if (indiceInicio != indiceFim) {
-                List<Time> subLista = listaTimes.subList(indiceInicio, indiceFim + 1);
+                List<Time> timesParaSortear = times.subList(indiceInicio, indiceFim + 1);
 
-                Collections.shuffle(subLista);
+                Collections.shuffle(timesParaSortear);
             }
         }
-        return listaTimes;
+    }
+
+    public List<Time> getTabelaClassificacao() {
+        List<Time> timesOrdenados = new ArrayList<>(times);
+
+        // Primeira ordenação: critérios primários (pontos, vitórias, saldo, gols)
+        timesOrdenados.sort(this::compararPorCriteriosPrimarios);
+
+        // Mapear times com mesmos critérios primários
+        Map<String, Pair<Integer, Integer>> timesEmpatadosPorCriteriosPrimarios = new HashMap<>();
+        mapearTimesEmpatados(timesEmpatadosPorCriteriosPrimarios, 0, timesOrdenados.size(), timesOrdenados, this::gerarChaveCriteriosPrimarios);
+
+        // Aplicar critérios secundários (confronto direto, cartões) e sorteio
+        aplicarDesempatePorCriteriosSecundarios(timesOrdenados, timesEmpatadosPorCriteriosPrimarios);
+
+        return timesOrdenados;
     }
 
     public Time confrontoDireto(Time t1, Time t2) {
