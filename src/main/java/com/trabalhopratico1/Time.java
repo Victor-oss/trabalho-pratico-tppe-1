@@ -5,24 +5,11 @@ import java.util.Random;
 public class Time
 {
     private String nome;
-    private int vitorias;
-    private int empates;
-    private int golsMarcados;
-    private int golsSofridos;
-    private int cartoesAmarelos;
-    private int cartoesVermelhos;
-
-    private static final int PONTOS_POR_VITORIA = 3;
-    private static final int PONTOS_POR_EMPATE = 1;
+    private EstatisticasTime estatisticas;
 
     public Time(String nome) {
         this.setNome(nome);
-        this.setVitorias(0);
-        this.setEmpates(0);
-        this.setGolsMarcados(0);
-        this.setGolsSofridos(0);
-        this.setCartoesAmarelos(0);
-        this.setCartoesVermelhos(0);
+        this.estatisticas = new EstatisticasTime();
     }
 
     public String getNome() {
@@ -34,76 +21,71 @@ public class Time
     }
 
     public int getVitorias() {
-        return vitorias;
+        return estatisticas.getVitorias();
     }
 
     public void setVitorias(int vitorias) {
-        this.vitorias = vitorias;
+        this.estatisticas.setVitorias(vitorias);
     }
 
     public int getEmpates() {
-        return empates;
+        return estatisticas.getEmpates();
     }
 
     public void setEmpates(int empates) {
-        this.empates = empates;
+        this.estatisticas.setEmpates(empates);
     }
 
     public int getGolsMarcados() {
-        return golsMarcados;
+        return estatisticas.getGolsMarcados();
     }
 
     public void setGolsMarcados(int golsMarcados) {
-        this.golsMarcados = golsMarcados;
+        this.estatisticas.setGolsMarcados(golsMarcados);
     }
 
     public int getGolsSofridos() {
-        return golsSofridos;
+        return estatisticas.getGolsSofridos();
     }
 
     public void setGolsSofridos(int golsSofridos) {
-        this.golsSofridos = golsSofridos;
+        this.estatisticas.setGolsSofridos(golsSofridos);
     }
 
     public int getCartoesAmarelos() {
-        return cartoesAmarelos;
+        return estatisticas.getCartoesAmarelos();
     }
 
     public void setCartoesAmarelos(int cartoesAmarelos) {
-        this.cartoesAmarelos = cartoesAmarelos;
+        this.estatisticas.setCartoesAmarelos(cartoesAmarelos);
     }
 
     public int getCartoesVermelhos() {
-        return cartoesVermelhos;
+        return estatisticas.getCartoesVermelhos();
     }
 
     public void setCartoesVermelhos(int cartoesVermelhos) {
-        this.cartoesVermelhos = cartoesVermelhos;
+        this.estatisticas.setCartoesVermelhos(cartoesVermelhos);
     }
 
     public int calcularPontos() {
-        return (this.vitorias * PONTOS_POR_VITORIA) + (this.empates * PONTOS_POR_EMPATE);
+        return estatisticas.calcularPontos();
     }
 
     public int getSaldoDeGols() {
-        return this.golsMarcados - this.golsSofridos;
+        return estatisticas.getSaldoDeGols();
     }
 
     public void registrarVitoria(int golsFeitos, int golsSofridos) {
-        this.vitorias++;
-        this.golsMarcados += golsFeitos;
-        this.golsSofridos += golsSofridos;
+        this.estatisticas.registrarVitoria(golsFeitos, golsSofridos);
     }
 
     public void registrarEmpate(int golsFeitos, int golsSofridos) {
-        this.empates++;
-        this.golsMarcados += golsFeitos;
-        this.golsSofridos += golsSofridos;
+        this.estatisticas.registrarEmpate(golsFeitos, golsSofridos);
     }
 
     public void registrarDerrota(int golsFeitos, int golsSofridos) {
-        this.golsMarcados += golsFeitos;
-        this.golsSofridos += golsSofridos;
+        this.estatisticas.registrarDerrota(golsFeitos, golsSofridos);
     }
 
     @Override
@@ -120,53 +102,14 @@ public class Time
     }
 
     public static Time desempate(Time t1, Time t2) {
-        return desempate(t1, t2, new Random());
+        return CriteriosDesempate.desempate(t1, t2);
     }
 
-     public static Time confrontoDireto(Time t1, Time t2) {
-        if (t1 == null || t2 == null) {
-            throw new IllegalArgumentException("Times não podem ser nulos");
-        }
-        int cmp = Integer.compare(t1.getSaldoDeGols(), t2.getSaldoDeGols());
-        if (cmp == 0) return null;
-        return cmp > 0 ? t1 : t2;
+    public static Time confrontoDireto(Time t1, Time t2) {
+        return CriteriosDesempate.confrontoDireto(t1, t2);
     }
 
     public static Time desempate(Time t1, Time t2, Random rng) {
-        int comparacaoVitorias = Integer.compare(t1.getVitorias(), t2.getVitorias());
-        if (comparacaoVitorias != 0) {
-            return comparacaoVitorias > 0 ? t1 : t2;
-        }
-
-        int comparacaoSaldo = Integer.compare(t1.getSaldoDeGols(), t2.getSaldoDeGols());
-        if (comparacaoSaldo != 0) {
-            return comparacaoSaldo > 0 ? t1 : t2;
-        }
-
-        int comparacaoGolsMarcados = Integer.compare(t1.getGolsMarcados(), t2.getGolsMarcados());
-        if (comparacaoGolsMarcados != 0) {
-            return comparacaoGolsMarcados > 0 ? t1 : t2;
-        }
-
-        Time vencedorConfronto = confrontoDireto(t1, t2);
-            if (vencedorConfronto != null)
-                return vencedorConfronto;
-
-        int comparacaoVermelhos = Integer.compare(t1.getCartoesVermelhos(), t2.getCartoesVermelhos());
-        if (comparacaoVermelhos != 0) {
-            return comparacaoVermelhos < 0 ? t1 : t2;
-        }
-
-        int comparacaoAmarelos = Integer.compare(t1.getCartoesAmarelos(), t2.getCartoesAmarelos());
-        if (comparacaoAmarelos != 0) {
-            return comparacaoAmarelos < 0 ? t1 : t2;
-        }
-
-        return sorteioCBF(t1, t2, rng);
-    }
-
-    private static Time sorteioCBF(Time t1, Time t2, Random rng) {
-        boolean primeiroTimeVence = rng.nextBoolean();
-        return primeiroTimeVence ? t1 : t2;
+        return CriteriosDesempate.desempate(t1, t2, rng);
     }
 }
